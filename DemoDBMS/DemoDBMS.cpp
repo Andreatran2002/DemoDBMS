@@ -1,22 +1,41 @@
-// DemoDBMS.cpp : This file contains the 'main' function. Program execution begins and ends there.
+﻿// DemoDBMS.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <sys/wait.h>
-//#include <unistd.h>
+#include <vector>
+
 #pragma warning(disable : 4996)
-//using namespace std::basic_istream;
 
 using namespace std; 
-const int PAGE_SIZE = 4096;
-#define TABLE_MAX_PAGES 100
-typedef struct {
-    int num_rows;
-    void* pages[TABLE_MAX_PAGES];
-} Table;
+
+
+
+struct Item {
+    int order; ///thứ tự từ bên phải qua của cột
+    //dữ liệu ở đây
+};
+
+struct Column {
+    string Name;
+    string Type;
+    bool PK = false; 
+    bool FK = false; 
+    vector<Item> Items; 
+
+    //cac thong tin phu tro khac nhu PK, FK, NOT NULL, DEFAULT, REFERENCES, ..
+};
+
+struct Table {
+    string Name; 
+    vector<Column> Columns; 
+};
+struct Database {
+    string Name; 
+    vector<Table> Tables; 
+};
 
 int help(char** args)
 {
@@ -38,41 +57,76 @@ int clear(char** args)
     system("cls");
     return 0;
 }
-// insert 
+// create database ... 
+// 
+// CREATE TABLE database_name.table_name(
+//column1 datatype PRIMARY KEY(one or more columns),
+//column2 datatype,
+//column3 datatype,
+//.....
+//columnN datatype
+//);
 
-int insert_table(char** args)
+int create_table(char** args)
+{
+    Table table; 
+    vector<Column> columns; 
+    table.Name = args[2]; 
+    int i = 3; 
+    int i_tail = 3;
+    while (args != NULL ) {
+        if (strcmp(args[i], ",")) {
+            Column column; 
+            column.Name = args[i_tail + 1];
+            column.Type = args[i_tail + 2];
+
+            if (i - i_tail - 1 == 4) {
+                column.PK = true; 
+            }
+
+            columns.push_back(column);
+            i_tail = i; 
+        }
+        else if (strcmp(args[i], ")")) {
+            Column column;
+            column.Name = args[i_tail + 1];
+            column.Type = args[i_tail + 2];
+        }
+        i++; 
+    }
+    /*for (int j = 0; j < table.Size(); j++) {
+
+    }*/
+    return 0;
+}
+
+int create_value(char** args)
 {
     system("cls");
     return 0;
 }
 
-int insert_value(char** args)
-{
-    system("cls");
-    return 0;
-}
 
-
-const char* insert_str[] =
+const char* create_str[] =
 {
   "table",
   "into"
 };
-int (*insert_func[]) (char**) = {
-  &insert_table,
-  &insert_value,
+int (*create_func[]) (char**) = {
+  &create_table,
+  &create_value,
 };
-int num_insert() {
-    return sizeof(insert_str) / sizeof(char*);
+int num_create() {
+    return sizeof(create_str) / sizeof(char*);
 }
 
 
-int insert(char** args)
+int create(char** args)
 {
     int i = 0; 
-    for (i = 0; i < num_insert(); i++) {
-        if (strcmp(args[1], insert_str[i]) == 0) {
-            return (*insert_func[i])(args);
+    for (i = 0; i < num_create(); i++) {
+        if (strcmp(args[1], create_str[i]) == 0) {
+            return (*create_func[i])(args);
         }
     }
     return 0;
@@ -96,7 +150,7 @@ const char* builtin_str[] =
   "exit",
   "select",
   "update",
-  "insert",
+  "create",
   "clear"
 };
 
@@ -105,7 +159,7 @@ int (*builtin_func[]) (char**) = {
   &exit,
   &select,
   &update,
-  &insert,
+  &create,
   &clear
 };
 
@@ -229,6 +283,7 @@ int main()
 	// Load config files, if any.
 
   // Run command loop.
+    Database meta; 
 	loop();
 
 	// Perform any shutdown/cleanup.
