@@ -1,7 +1,4 @@
-﻿// DemoDBMS.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
-#include <iostream>
+﻿#include <iostream>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,9 +10,11 @@ using namespace std;
 
 
 
+
 struct Item {
-    int order; ///thứ tự từ bên phải qua của cột
+    //int order; ///thứ tự từ bên phải qua của cột
     //dữ liệu ở đây
+    string data; 
 };
 
 struct Column {
@@ -23,8 +22,8 @@ struct Column {
     string Type;
     bool PK = false; 
     bool FK = false; 
-    vector<Item> Items; 
-
+    vector<string> Items; 
+    
     //cac thong tin phu tro khac nhu PK, FK, NOT NULL, DEFAULT, REFERENCES, ..
 };
 
@@ -33,11 +32,16 @@ struct Table {
     vector<Column> Columns; 
 };
 struct Database {
-    string Name; 
+    string Name="";
     vector<Table> Tables; 
 };
 
-int help(char** args)
+vector<Database> databases; 
+
+Database database_use; 
+
+
+int help(char** args, int& count)
 {
     int i;
     printf("------------------------Menu help-------------------------- \n");
@@ -48,71 +52,183 @@ int help(char** args)
     return 1;
 }
 
-int exit(char** args)
+int exit(char** args, int& count)
 {
     return 0;
 }
-int clear(char** args)
+int clear(char** args, int& count)
 {
     system("cls");
     return 0;
 }
-// create database ... 
-// 
-// CREATE TABLE database_name.table_name(
-//column1 datatype PRIMARY KEY(one or more columns),
-//column2 datatype,
-//column3 datatype,
-//.....
-//columnN datatype
-//);
 
-int create_table(char** args)
+int show(char** args, int& count)
 {
+    if (strcmp(args[1], "database") == 0) {
+        if (databases.size() == 0)
+        {
+            cout << "You haven't entered any database" << endl;
+            return 1;
+        }
+        printf("List database : \n"); 
+        for (int i =  0 ; i< databases.size(); i++)
+        {
+            cout <<  databases[i].Name<< " \n";
+        }
+    }
+    else if (strcmp(args[1], "table") == 0){
+        if (database_use.Tables.size() == 0)
+        {
+            cout << "You haven't entered any table in curren database" << endl; 
+            return 1; 
+        }
+        printf("List table in current database: \n");
+        for (int i = 0; i < database_use.Tables.size(); i++)
+        {
+            cout << database_use.Tables[i].Name << " \n";
+        }
+    }
+    else {
+
+    }
+    
+     return 1;
+}
+int use(char** args, int& count)
+{
+    for (int i = 0; i < databases.size(); i++)
+    {
+        if (args[1] == databases[i].Name) {
+            database_use = databases[i];
+            cout << "You are in database " + databases[i].Name<< "\n";
+            return 1; 
+        }
+    }
+    cout << "Wrong format . Please try another query ." << endl;
+    return 1;
+}
+
+
+
+int create_database(char** args, int count) {
+    if (count > 3) {
+        cout << "Wrong format . Please try another query . " << endl;
+        return 1;
+    }
+    Database database;
+    database.Name = args[2];
+    databases.push_back(database);
+    cout << "You have create a database "<< database.Name<< " successfully.\n"; 
+    
+    return 1; 
+}
+
+int create_table(char** args, int count)
+{
+    if (database_use.Name == "") {
+        cout << "You have to use a database" << endl;
+        return 1; 
+    }
     Table table; 
     vector<Column> columns; 
     table.Name = args[2]; 
-    int i = 3; 
     int i_tail = 3;
-    while (args != NULL ) {
-        if (strcmp(args[i], ",")) {
+    for (int i = 3; i < count; i++ ) {
+        if (strcmp(args[i], ",") == 0 ) {
             Column column; 
             column.Name = args[i_tail + 1];
             column.Type = args[i_tail + 2];
 
             if (i - i_tail - 1 == 4) {
+                if (strcmp(args[i_tail + 3],"primary"))
                 column.PK = true; 
+                else column.FK = true;
             }
 
             columns.push_back(column);
-            i_tail = i; 
+            i_tail = i;
+
+            
         }
-        else if (strcmp(args[i], ")")) {
+        else if (strcmp(args[i], ")") ==0 ) {
+
             Column column;
             column.Name = args[i_tail + 1];
             column.Type = args[i_tail + 2];
+            if (i - i_tail - 1 == 4) {
+                if (strcmp(args[i_tail + 3], "primary"))
+                    column.PK = true;
+                else column.FK = true;
+            }
+            columns.push_back(column);
         }
-        i++; 
     }
-    /*for (int j = 0; j < table.Size(); j++) {
-
-    }*/
-    return 0;
+    table.Columns = columns;
+    for(int j = 0; j<table.Columns.size();j++) {
+        cout << table.Columns[j].Name + "\n"; 
+    }
+    database_use.Tables.push_back(table);
+    return 1;
 }
+//INSERT INTO titles  
+//(title_id, title, type, pub_id, price)
+//VALUES('BU9876', 'Creating Web Pages', 'business', '1389', '29.99')
 
-int create_value(char** args)
+int create_value(char** args, int count)
 {
-    system("cls");
-    return 0;
+    int index = 0; 
+    for (int i = 0; i < database_use.Tables.size(); i++)
+    {
+        if (args[2]== database_use.Tables[i].Name) {
+            if (strcmp(args[3], "values" ) == 0 ) {
+                vector<string> items;
+                    int k = 0; 
+                    string n = "";
+                        for (int jj = 5; jj < count; jj++) {
+                        if (strcmp(args[jj], "'") == 0)
+                        {
+                            if (k != 0 && k % 2 == 0 ) {
+                                items.push_back(n);
+                                n = "";
+                            }
+                            k++;
+                        }
+                        if (strcmp(args[jj], ")") != 0 && strcmp(args[jj], ",") != 0 && strcmp(args[jj], "'") != 0 ) n = n + " " +  args[jj];
+                        
+                    }
+                    if (k %2 == 0 )items.push_back(n);
+                    if (items.size() == database_use.Tables[i].Columns.size()) {
+                        for (int kk = 0; kk < items.size(); kk++) {
+                            database_use.Tables[i].Columns[index++].Items.push_back(items[kk]); 
+                        }
+                    }
+                    else {
+                        cout << "Wrong format . Please try another query . " << endl;
+                        return 1;
+                    }
+                    cout << "You have enter a value successfully ! " << endl; 
+                    break; 
+                }
+                else {
+                    cout << "Wrong format . Please try another query . " << endl; 
+                    return 1; 
+                }
+            
+        }
+    }
+    
+    return 1;
 }
 
 
 const char* create_str[] =
 {
+  "database",
   "table",
-  "into"
+  "new"
 };
-int (*create_func[]) (char**) = {
+int (*create_func[]) (char**, int) = {
+    &create_database,
   &create_table,
   &create_value,
 };
@@ -121,23 +237,48 @@ int num_create() {
 }
 
 
-int create(char** args)
+int create(char** args, int& count)
 {
     int i = 0; 
     for (i = 0; i < num_create(); i++) {
         if (strcmp(args[1], create_str[i]) == 0) {
-            return (*create_func[i])(args);
+            return (*create_func[i])(args,count);
         }
     }
-    return 0;
+    return 1;
 }
-int update(char** args)
+int update(char** args, int& count)
 {
-    return 0;
+    return 1;
 }
-int select(char** args)
+int select(char** args,int& count)
 {
-    return 0;
+    if (strcmp(args[1], "*") == 0) {
+        if (strcmp(args[2], "from") == 0) {
+            for (int i = 0; i < database_use.Tables.size(); i++) {
+                if (args[3] == database_use.Tables[i].Name) {
+                    for (int j = 0; j < database_use.Tables[i].Columns[0].Items.size(); j++) {
+                        for (int jj = 0; jj < database_use.Tables[i].Columns.size(); jj++) {
+                            cout << database_use.Tables[i].Columns[jj].Items[j] << " ";
+                        }
+                        cout << endl; 
+                    }
+                    break; 
+                }
+            }
+        }
+    }/*
+    else {
+        string n = "";
+        vector<string> field; 
+        for (int i = 1; i < count; i++) {
+            n = n + " " + args[i];
+            if (strcmp(args[i], "from") == 0) {
+                for (int i)
+            }
+        }
+    }*/
+    return 1;
 }
 
 
@@ -151,16 +292,20 @@ const char* builtin_str[] =
   "select",
   "update",
   "create",
-  "clear"
+  "clear",
+  "show",
+  "use"
 };
 
-int (*builtin_func[]) (char**) = {
+int (*builtin_func[]) (char**,int&) = {
   &help,
   &exit,
   &select,
   &update,
   &create,
-  &clear
+  &clear,
+  &show,
+  &use
 };
 
 int num_builtins() {
@@ -253,14 +398,14 @@ int execute(char** args,int &count)
 
     for (i = 0; i < num_builtins(); i++) {
         if (strcmp(args[0], builtin_str[i]) == 0) {
-            return (*builtin_func[i])(args);
+            return (*builtin_func[i])(args,count);
         }
     }
 
     return 1; 
 }
 
-void loop(void)
+void loop()
 {
     char* line;
     char** args;
@@ -268,7 +413,7 @@ void loop(void)
     bool check = true; 
     do {
         int count = 0; 
-        printf("> ");
+        cout<< database_use.Name<< " >> ";
         line = read_line();
         args = split_line(line,count);
         status = execute(args,count);
@@ -278,12 +423,18 @@ void loop(void)
     } while (check==false);
 }
 
+
+void initialize() {
+    database_use.Name = "";
+}
+
+
 int main()
 {
 	// Load config files, if any.
 
   // Run command loop.
-    Database meta; 
+    initialize(); 
 	loop();
 
 	// Perform any shutdown/cleanup.

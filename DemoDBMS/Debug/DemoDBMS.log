@@ -1,3 +1,12 @@
 ﻿  DemoDBMS.cpp
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(41,9): warning C4101: 'i': unreferenced local variable
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(46,9): warning C4101: 'i': unreferenced local variable
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(74,28): warning C4018: '<': signed/unsigned mismatch
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(86,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(99,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(167,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(180,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(201,45): warning C4018: '<': signed/unsigned mismatch
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(258,31): warning C4018: '<': signed/unsigned mismatch
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(260,39): warning C4018: '<': signed/unsigned mismatch
+C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(261,45): warning C4018: '<': signed/unsigned mismatch
   DemoDBMS.vcxproj -> C:\Users\DELL\OneDrive\Desktop\DemoDBMS\Debug\DemoDBMS.exe
