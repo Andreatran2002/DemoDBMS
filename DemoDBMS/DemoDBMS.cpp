@@ -164,9 +164,10 @@ int create_table(char** args, int count)
         }
     }
     table.Columns = columns;
-    for(int j = 0; j<table.Columns.size();j++) {
+    /*for(int j = 0; j<table.Columns.size();j++) {
         cout << table.Columns[j].Name + "\n"; 
-    }
+    }*/
+    cout << "You have created table successfully"; 
     database_use.Tables.push_back(table);
     return 1;
 }
