@@ -3,173 +3,197 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <conio.h>
+#include <Windows.h>
 
 #pragma warning(disable : 4996)
 
-using namespace std; 
+using namespace std;
 
 
+#define LSH_RL_BUFSIZE 1024
+#define LSH_TOK_BUFSIZE 64
+#define LSH_TOK_DELIM " \t\r\n\a"
 
+//=====init function ========
+void PrintTable(int i);
+void SetCursor(int x, int y);
+//=====init function ========
 
 struct Item {
-    //int order; ///thứ tự từ bên phải qua của cột
-    //dữ liệu ở đây
-    string data; 
+	//int order; ///thứ tự từ bên phải qua của cột
+	//dữ liệu ở đây
+	string data;
 };
 
 struct Column {
-    string Name;
-    string Type;
-    bool PK = false; 
-    bool FK = false; 
-    vector<string> Items; 
-    
-    //cac thong tin phu tro khac nhu PK, FK, NOT NULL, DEFAULT, REFERENCES, ..
+	string Name;
+	string Type;
+	bool PK = false;
+	bool FK = false;
+	vector<string> Items;
+
+	//cac thong tin phu tro khac nhu PK, FK, NOT NULL, DEFAULT, REFERENCES, ..
 };
 
 struct Table {
-    string Name; 
-    vector<Column> Columns; 
+	string Name;
+	vector<Column> Columns;
 };
 struct Database {
-    string Name="";
-    vector<Table> Tables; 
+	string Name = "";
+	vector<Table> Tables;
 };
 
-vector<Database> databases; 
+vector<Database> databases;
 
-Database database_use; 
+Database database_use;
 
 
 int help(char** args, int& count)
 {
-    int i;
-    printf("------------------------Menu help-------------------------- \n");
-    printf("clear :  clean the screen \n");
-    printf("exit  :  terminate the program --.\n");
-    printf("print :  print the database into .txt file --.\n");
-    printf("------------------------Menu help-------------------------- \n");
-    return 1;
+	int i;
+	printf("------------------------Menu help-------------------------- \n");
+	printf("clear :  clean the screen \n");
+	printf("exit  :  terminate the program --.\n");
+	printf("print :  print the database into .txt file --.\n");
+	printf("------------------------Menu help-------------------------- \n");
+	return 1;
 }
 
 int exit(char** args, int& count)
 {
-    return 0;
+	cout << "Press [ENTER] to exit";
+	char key_press;
+	int ascii_value;
+	while (1)
+	{
+		key_press = getch();
+		ascii_value = key_press;
+		if (ascii_value == 13) {
+			exit(EXIT_SUCCESS);
+			break;
+		}
+		else {
+			cout << endl;
+			return 1;
+		}
+	}
 }
+
 int clear(char** args, int& count)
 {
-    system("cls");
-    return 0;
+	system("cls");
+	return 0;
 }
 
 int show(char** args, int& count)
 {
-    if (strcmp(args[1], "database") == 0) {
-        if (databases.size() == 0)
-        {
-            cout << "You haven't entered any database" << endl;
-            return 1;
-        }
-        printf("List database : \n"); 
-        for (int i =  0 ; i< databases.size(); i++)
-        {
-            cout <<  databases[i].Name<< " \n";
-        }
-    }
-    else if (strcmp(args[1], "table") == 0){
-        if (database_use.Tables.size() == 0)
-        {
-            cout << "You haven't entered any table in curren database" << endl; 
-            return 1; 
-        }
-        printf("List table in current database: \n");
-        for (int i = 0; i < database_use.Tables.size(); i++)
-        {
-            cout << database_use.Tables[i].Name << " \n";
-        }
-    }
-    else {
+	if (strcmp(args[1], "database") == 0) {
+		if (databases.size() == 0)
+		{
+			cout << "You haven't entered any database" << endl;
+			return 1;
+		}
+		printf("List database : \n");
+		for (int i = 0; i < databases.size(); i++)
+		{
+			cout << databases[i].Name << " \n";
+		}
+	}
+	else if (strcmp(args[1], "table") == 0) {
+		if (database_use.Tables.size() == 0)
+		{
+			cout << "You haven't entered any table in curren database" << endl;
+			return 1;
+		}
+		printf("List table in current database: \n");
+		for (int i = 0; i < database_use.Tables.size(); i++)
+		{
+			cout << database_use.Tables[i].Name << " \n";
+		}
+	}
+	else {
 
-    }
-    
-     return 1;
+	}
+
+	return 1;
 }
+
 int use(char** args, int& count)
 {
-    for (int i = 0; i < databases.size(); i++)
-    {
-        if (args[1] == databases[i].Name) {
-            database_use = databases[i];
-            cout << "You are in database " + databases[i].Name<< "\n";
-            return 1; 
-        }
-    }
-    cout << "Wrong format . Please try another query ." << endl;
-    return 1;
+	for (int i = 0; i < databases.size(); i++)
+	{
+		if (args[1] == databases[i].Name) {
+			database_use = databases[i];
+			cout << "You are in database " + databases[i].Name << "\n";
+			return 1;
+		}
+	}
+	cout << "Wrong format . Please try another query ." << endl;
+	return 1;
 }
 
-
-
 int create_database(char** args, int count) {
-    if (count > 3) {
-        cout << "Wrong format . Please try another query . " << endl;
-        return 1;
-    }
-    Database database;
-    database.Name = args[2];
-    databases.push_back(database);
-    cout << "You have create a database "<< database.Name<< " successfully.\n"; 
-    
-    return 1; 
+	if (count > 3) {
+		cout << "Wrong format . Please try another query . " << endl;
+		return 1;
+	}
+	Database database;
+	database.Name = args[2];
+	databases.push_back(database);
+	cout << "You have create a database " << database.Name << " successfully.\n";
+
+	return 1;
 }
 
 int create_table(char** args, int count)
 {
-    if (database_use.Name == "") {
-        cout << "You have to use a database" << endl;
-        return 1; 
-    }
-    Table table; 
-    vector<Column> columns; 
-    table.Name = args[2]; 
-    int i_tail = 3;
-    for (int i = 3; i < count; i++ ) {
-        if (strcmp(args[i], ",") == 0 ) {
-            Column column; 
-            column.Name = args[i_tail + 1];
-            column.Type = args[i_tail + 2];
+	if (database_use.Name == "") {
+		cout << "You have to use a database" << endl;
+		return 1;
+	}
+	Table table;
+	vector<Column> columns;
+	table.Name = args[2];
+	int i_tail = 3;
+	for (int i = 3; i < count; i++) {
+		if (strcmp(args[i], ",") == 0) {
+			Column column;
+			column.Name = args[i_tail + 1];
+			column.Type = args[i_tail + 2];
 
-            if (i - i_tail - 1 == 4) {
-                if (strcmp(args[i_tail + 3],"primary"))
-                column.PK = true; 
-                else column.FK = true;
-            }
+			if (i - i_tail - 1 == 4) {
+				if (strcmp(args[i_tail + 3], "primary"))
+					column.PK = true;
+				else column.FK = true;
+			}
 
-            columns.push_back(column);
-            i_tail = i;
+			columns.push_back(column);
+			i_tail = i;
 
-            
-        }
-        else if (strcmp(args[i], ")") ==0 ) {
 
-            Column column;
-            column.Name = args[i_tail + 1];
-            column.Type = args[i_tail + 2];
-            if (i - i_tail - 1 == 4) {
-                if (strcmp(args[i_tail + 3], "primary"))
-                    column.PK = true;
-                else column.FK = true;
-            }
-            columns.push_back(column);
-        }
-    }
-    table.Columns = columns;
-    /*for(int j = 0; j<table.Columns.size();j++) {
-        cout << table.Columns[j].Name + "\n"; 
-    }*/
-    cout << "You have created table successfully"; 
-    database_use.Tables.push_back(table);
-    return 1;
+		}
+		else if (strcmp(args[i], ")") == 0) {
+
+			Column column;
+			column.Name = args[i_tail + 1];
+			column.Type = args[i_tail + 2];
+			if (i - i_tail - 1 == 4) {
+				if (strcmp(args[i_tail + 3], "primary"))
+					column.PK = true;
+				else column.FK = true;
+			}
+			columns.push_back(column);
+		}
+	}
+	table.Columns = columns;
+	/*for(int j = 0; j<table.Columns.size();j++) {
+		cout << table.Columns[j].Name + "\n";
+	}*/
+	cout << "You have created table successfully";
+	database_use.Tables.push_back(table);
+	return 1;
 }
 //INSERT INTO titles  
 //(title_id, title, type, pub_id, price)
@@ -177,50 +201,49 @@ int create_table(char** args, int count)
 
 int create_value(char** args, int count)
 {
-    int index = 0; 
-    for (int i = 0; i < database_use.Tables.size(); i++)
-    {
-        if (args[2]== database_use.Tables[i].Name) {
-            if (strcmp(args[3], "values" ) == 0 ) {
-                vector<string> items;
-                    int k = 0; 
-                    string n = "";
-                        for (int jj = 5; jj < count; jj++) {
-                        if (strcmp(args[jj], "'") == 0)
-                        {
-                            if (k != 0 && k % 2 == 0 ) {
-                                items.push_back(n);
-                                n = "";
-                            }
-                            k++;
-                        }
-                        if (strcmp(args[jj], ")") != 0 && strcmp(args[jj], ",") != 0 && strcmp(args[jj], "'") != 0 ) n = n + " " +  args[jj];
-                        
-                    }
-                    if (k %2 == 0 )items.push_back(n);
-                    if (items.size() == database_use.Tables[i].Columns.size()) {
-                        for (int kk = 0; kk < items.size(); kk++) {
-                            database_use.Tables[i].Columns[index++].Items.push_back(items[kk]); 
-                        }
-                    }
-                    else {
-                        cout << "Wrong format . Please try another query . " << endl;
-                        return 1;
-                    }
-                    cout << "You have enter a value successfully ! " << endl; 
-                    break; 
-                }
-                else {
-                    cout << "Wrong format . Please try another query . " << endl; 
-                    return 1; 
-                }
-            
-        }
-    }
-    
-    return 1;
-}
+	int index = 0;
+	for (int i = 0; i < database_use.Tables.size(); i++)
+	{
+		if (args[2] == database_use.Tables[i].Name) {
+			if (strcmp(args[3], "values") == 0) {
+				vector<string> items;
+				int k = 0;
+				string n = "";
+				for (int jj = 5; jj < count; jj++) {
+					if (strcmp(args[jj], "'") == 0)
+					{
+						if (k != 0 && k % 2 == 0) {
+							items.push_back(n);
+							n = "";
+						}
+						k++;
+					}
+					if (strcmp(args[jj], ")") != 0 && strcmp(args[jj], ",") != 0 && strcmp(args[jj], "'") != 0) n = n + " " + args[jj];
 
+				}
+				if (k % 2 == 0)items.push_back(n);
+				if (items.size() == database_use.Tables[i].Columns.size()) {
+					for (int kk = 0; kk < items.size(); kk++) {
+						database_use.Tables[i].Columns[index++].Items.push_back(items[kk]);
+					}
+				}
+				else {
+					cout << "Wrong format . Please try another query . " << endl;
+					return 1;
+				}
+				cout << "You have enter a value successfully ! " << endl;
+				break;
+			}
+			else {
+				cout << "Wrong format . Please try another query . " << endl;
+				return 1;
+			}
+
+		}
+	}
+
+	return 1;
+}
 
 const char* create_str[] =
 {
@@ -229,57 +252,103 @@ const char* create_str[] =
   "new"
 };
 int (*create_func[]) (char**, int) = {
-    &create_database,
+	&create_database,
   &create_table,
   &create_value,
 };
 int num_create() {
-    return sizeof(create_str) / sizeof(char*);
+	return sizeof(create_str) / sizeof(char*);
 }
 
 
 int create(char** args, int& count)
 {
-    int i = 0; 
-    for (i = 0; i < num_create(); i++) {
-        if (strcmp(args[1], create_str[i]) == 0) {
-            return (*create_func[i])(args,count);
-        }
-    }
-    return 1;
+	int i = 0;
+	for (i = 0; i < num_create(); i++) {
+		if (strcmp(args[1], create_str[i]) == 0) {
+			return (*create_func[i])(args, count);
+		}
+	}
+	return 1;
 }
 int update(char** args, int& count)
 {
-    return 1;
+	return 1;
 }
-int select(char** args,int& count)
+int select(char** args, int& count)
 {
-    if (strcmp(args[1], "*") == 0) {
-        if (strcmp(args[2], "from") == 0) {
-            for (int i = 0; i < database_use.Tables.size(); i++) {
-                if (args[3] == database_use.Tables[i].Name) {
-                    for (int j = 0; j < database_use.Tables[i].Columns[0].Items.size(); j++) {
-                        for (int jj = 0; jj < database_use.Tables[i].Columns.size(); jj++) {
-                            cout << database_use.Tables[i].Columns[jj].Items[j] << " ";
-                        }
-                        cout << endl; 
-                    }
-                    break; 
-                }
-            }
-        }
-    }/*
-    else {
-        string n = "";
-        vector<string> field; 
-        for (int i = 1; i < count; i++) {
-            n = n + " " + args[i];
-            if (strcmp(args[i], "from") == 0) {
-                for (int i)
-            }
-        }
-    }*/
-    return 1;
+	if (strcmp(args[1], "*") == 0) {
+		if (strcmp(args[2], "from") == 0) {
+			for (int i = 0; i < database_use.Tables.size(); i++) {
+				if (args[3] == database_use.Tables[i].Name) {
+					PrintTable(i);
+					return 1;
+				}
+			}
+		}
+	}
+	else {
+		for (int i = 1; i < count; i++) {
+			if (strcmp(args[i], "from") == 0) {
+				//header
+				system("cls");
+				int height = 0;
+				for (int j = 1; j <= (i - 1) * 20; j++) {
+					cout << "-";
+				}
+				cout << endl;
+
+				for (int j = 0; j < i - 1; j++) {
+					SetCursor(j * 20, 0);
+					cout << "|" << args[j + 1] << " ";
+				}
+				SetCursor((i - 1) * 20, 0);
+				cout << "|" << endl;
+				//body
+				for (int x = 0; x < database_use.Tables.size(); x++) {
+					if (args[i + 1] == database_use.Tables[x].Name) {
+						//table x 
+						for (int z = 1; z < i; z++) {
+							for (int y = 0; y < database_use.Tables[x].Columns.size(); y++) {
+								if (args[z] == database_use.Tables[x].Columns[y].Name) {
+									height = database_use.Tables[x].Columns[y].Items.size();
+									for (int k = 0; k < database_use.Tables[x].Columns[y].Items.size(); k++) {
+										SetCursor((z - 1) * 20, k + 1);
+										cout << "|" << database_use.Tables[x].Columns[y].Items[k];
+									}
+								}
+							}
+						}
+					}
+				}
+				for (int j = 1; j <= height; j++) {
+					SetCursor((i - 1) * 20, j);
+					cout << "|";
+				}
+				SetCursor(0, height + 1);
+				for (int j = 1; j <= (i - 1) * 20; j++) {
+					cout << "-";
+				}
+				cout << endl;
+				return 1;
+			}
+		}
+		cout << "Wrong format . Please try another query" << endl << "select coloum1 coloum2 from table1 where ..." << endl;
+		return 1;
+	}
+	// select coloum1 coloum2 from table1 where ...
+	/*
+	else {
+		string n = "";
+		vector<string> field;
+		for (int i = 1; i < count; i++) {
+			n = n + " " + args[i];
+			if (strcmp(args[i], "from") == 0) {
+				for (int i)
+			}
+		}
+	}*/
+	return 1;
 }
 
 
@@ -295,10 +364,10 @@ const char* builtin_str[] =
   "create",
   "clear",
   "show",
-  "use"
+  "use",
 };
 
-int (*builtin_func[]) (char**,int&) = {
+int (*builtin_func[]) (char**, int&) = {
   &help,
   &exit,
   &select,
@@ -306,127 +375,123 @@ int (*builtin_func[]) (char**,int&) = {
   &create,
   &clear,
   &show,
-  &use
+  &use,
 };
 
 int num_builtins() {
-    return sizeof(builtin_str) / sizeof(char*);
+	return sizeof(builtin_str) / sizeof(char*);
 }
 
-
-
-#define LSH_RL_BUFSIZE 1024
 char* read_line(void)
 {
-    int bufsize = LSH_RL_BUFSIZE;
-    int position = 0;
-    char* buffer = (char*)malloc(sizeof(char) * bufsize);
-    int c;
+	int bufsize = LSH_RL_BUFSIZE;
+	int position = 0;
+	char* buffer = (char*)malloc(sizeof(char) * bufsize);
+	int c;
 
-    if (!buffer) {
-        fprintf(stderr, "lsh: allocation error\n");
-        exit(EXIT_FAILURE);
-    }
+	if (!buffer) {
+		fprintf(stderr, "lsh: allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 
-    while (1) {
-        // Read a character
-        c = getchar();
+	while (1) {
+		// Read a character
+		c = getchar();
 
-        // If we hit EOF, replace it with a null character and return.
-        if (c == EOF || c == '\n') {
-            buffer[position] = '\0';
-            return buffer;
-        }
-        else {
-            buffer[position] = c;
-        }
-        position++;
+		// If we hit EOF, replace it with a null character and return.
+		if (c == EOF || c == '\n') {
+			buffer[position] = '\0';
+			return buffer;
+		}
+		else {
+			buffer[position] = c;
+		}
+		position++;
 
-        // If we have exceeded the buffer, reallocate.
-        if (position >= bufsize) {
-            bufsize += LSH_RL_BUFSIZE;
-            buffer = (char*)realloc(buffer, bufsize);
-            if (!buffer) {
-                fprintf(stderr, "lsh: allocation error\n");
-                exit(EXIT_FAILURE);
-            }
-        }
-    }
+		// If we have exceeded the buffer, reallocate.
+		if (position >= bufsize) {
+			bufsize += LSH_RL_BUFSIZE;
+			buffer = (char*)realloc(buffer, bufsize);
+			if (!buffer) {
+				fprintf(stderr, "lsh: allocation error\n");
+				exit(EXIT_FAILURE);
+			}
+		}
+	}
 }
 
 
-#define LSH_TOK_BUFSIZE 64
-#define LSH_TOK_DELIM " \t\r\n\a"
-char** split_line(char* line, int & count)
+
+char** split_line(char* line, int& count)
 {
-    int bufsize = LSH_TOK_BUFSIZE, position = 0;
-    char** tokens = (char **)malloc(bufsize * sizeof(char*));
-    char* token;
+	int bufsize = LSH_TOK_BUFSIZE, position = 0;
+	char** tokens = (char**)malloc(bufsize * sizeof(char*));
+	char* token;
 
-    if (!tokens) {
-        fprintf(stderr, "lsh: allocation error\n");
-        exit(EXIT_FAILURE);
-    }
+	if (!tokens) {
+		fprintf(stderr, "lsh: allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 
-    token = strtok(line, LSH_TOK_DELIM);
-    while (token != NULL) {
-        tokens[position] = token;
-        position++;
+	token = strtok(line, LSH_TOK_DELIM);
+	while (token != NULL) {
+		tokens[position] = token;
+		position++;
 
-        if (position >= bufsize) {
-            bufsize += LSH_TOK_BUFSIZE;
-            tokens = (char **)realloc(tokens, bufsize * sizeof(char*));
-            if (!tokens) {
-                fprintf(stderr, "lsh: allocation error\n");
-                exit(EXIT_FAILURE);
-            }
-        }
+		if (position >= bufsize) {
+			bufsize += LSH_TOK_BUFSIZE;
+			tokens = (char**)realloc(tokens, bufsize * sizeof(char*));
+			if (!tokens) {
+				fprintf(stderr, "lsh: allocation error\n");
+				exit(EXIT_FAILURE);
+			}
+		}
 
-        token = strtok(NULL, LSH_TOK_DELIM);
-    }
-    tokens[position] = NULL;
-    count = position; 
-    return tokens;
+		token = strtok(NULL, LSH_TOK_DELIM);
+	}
+	tokens[position] = NULL;
+	count = position;
+	return tokens;
 }
-int execute(char** args,int &count)
+int execute(char** args, int& count)
 {
-    int i;
+	int i;
 
-    if (args[0] == NULL) {
-        // An empty command was entered.
-        return 1;
-    }
+	if (args[0] == NULL) {
+		// An empty command was entered.
+		return 1;
+	}
 
-    for (i = 0; i < num_builtins(); i++) {
-        if (strcmp(args[0], builtin_str[i]) == 0) {
-            return (*builtin_func[i])(args,count);
-        }
-    }
+	for (i = 0; i < num_builtins(); i++) {
+		if (strcmp(args[0], builtin_str[i]) == 0) {
+			return (*builtin_func[i])(args, count);
+		}
+	}
 
-    return 1; 
+	return 1;
 }
 
 void loop()
 {
-    char* line;
-    char** args;
-    int status;
-    bool check = true; 
-    do {
-        int count = 0; 
-        cout<< database_use.Name<< " >> ";
-        line = read_line();
-        args = split_line(line,count);
-        status = execute(args,count);
-        free(line);
-        free(args);
-        check = false; 
-    } while (check==false);
+	char* line;
+	char** args;
+	int status;
+	bool check = true;
+	do {
+		int count = 0;
+		cout << database_use.Name << " >> ";
+		line = read_line();
+		args = split_line(line, count);
+		status = execute(args, count);
+		free(line);
+		free(args);
+		check = false;
+	} while (check == false);
 }
 
 
 void initialize() {
-    database_use.Name = "";
+	database_use.Name = "";
 }
 
 
@@ -435,10 +500,54 @@ int main()
 	// Load config files, if any.
 
   // Run command loop.
-    initialize(); 
+	initialize();
 	loop();
-
 	// Perform any shutdown/cleanup.
-
 	return EXIT_SUCCESS;
 }
+
+
+
+//=====control console cursor ===============
+void SetCursor(int x, int y) {
+	HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD pos = { x, y };
+	SetConsoleCursorPosition(output, pos);
+};
+//=====control console cursor ===============
+
+//=====Print Table===========================
+void PrintTable(int i) {
+	system("cls");
+	for (int j = 0; j < database_use.Tables[i].Columns.size() * 20; j++) {
+		cout << "-";
+	}
+	cout << endl;
+
+	for (int jj = 0; jj < database_use.Tables[i].Columns.size(); jj++) {
+		SetCursor(jj * 20, 0);
+		//cout << j << jj;
+		cout << "|" << database_use.Tables[i].Columns[jj].Name << " ";
+	}
+	SetCursor(database_use.Tables[i].Columns.size() * 20, 0);
+	cout << "|" << endl;
+
+	cout << endl;
+
+	for (int j = 0; j < database_use.Tables[i].Columns[0].Items.size(); j++) {
+		for (int jj = 0; jj < database_use.Tables[i].Columns.size(); jj++) {
+			SetCursor(jj * 20, j + 1);
+			//cout << j << jj;
+			cout << "|" << database_use.Tables[i].Columns[jj].Items[j] << " ";
+		}
+		SetCursor(database_use.Tables[i].Columns.size() * 20, j + 1);
+		cout << "|" << endl;
+	}
+
+	for (int j = 0; j < database_use.Tables[i].Columns.size() * 20; j++) {
+		cout << "-";
+	}
+	cout << endl;
+}
+//=====Print Table===============
+

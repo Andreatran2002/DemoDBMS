@@ -1,11 +1,19 @@
 ﻿  DemoDBMS.cpp
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(46,9): warning C4101: 'i': unreferenced local variable
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(74,28): warning C4018: '<': signed/unsigned mismatch
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(86,27): warning C4018: '<': signed/unsigned mismatch
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(99,23): warning C4018: '<': signed/unsigned mismatch
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(181,23): warning C4018: '<': signed/unsigned mismatch
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(202,45): warning C4018: '<': signed/unsigned mismatch
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(259,31): warning C4018: '<': signed/unsigned mismatch
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(261,39): warning C4018: '<': signed/unsigned mismatch
-C:\Users\DELL\OneDrive\Desktop\DemoDBMS\DemoDBMS\DemoDBMS.cpp(262,45): warning C4018: '<': signed/unsigned mismatch
-  DemoDBMS.vcxproj -> C:\Users\DELL\OneDrive\Desktop\DemoDBMS\Debug\DemoDBMS.exe
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(55,6): warning C4101: 'i': unreferenced local variable
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(99,21): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(111,21): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(125,20): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(205,20): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(226,26): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(282,22): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(308,23): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(312,26): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(315,28): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(514,16): warning C4838: conversion from 'int' to 'SHORT' requires a narrowing conversion
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(514,19): warning C4838: conversion from 'int' to 'SHORT' requires a narrowing conversion
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(522,20): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(527,22): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(537,20): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(538,23): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(547,20): warning C4018: '<': signed/unsigned mismatch
+  DemoDBMS.vcxproj -> E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\Debug\DemoDBMS.exe
