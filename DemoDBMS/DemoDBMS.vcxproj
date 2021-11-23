@@ -140,7 +140,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DemoDBMS.cpp" />
-    <ClCompile Include="exicute.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Hash.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

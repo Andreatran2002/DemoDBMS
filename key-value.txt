@@ -1,0 +1,20 @@
+database: "db1":" db1_tb1"
+table: "db1_tb1": " db1_tb1_name db1_tb1_id"
+coloum: "db1_tb1_name": "string db1_tb1_name_1 db1_tb1_name_2"
+coloum: "db1_tb1_id" : "int"
+
+"db1_tb1_name_1": "Tien"
+"db1_tb1_name_2": "Vy"
+
+"db1_tb1_id_1": "20110735"
+"db1_tb1_id_2": "20110232"
+
+show name from tb1
+
+Tine   20110735
+Vy     20110232 #
+
+db >> show tb1
+
+db >> select * from tb1 where 20110232
+db >> select * from tb1 sortby id
