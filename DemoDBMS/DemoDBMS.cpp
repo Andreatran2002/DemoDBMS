@@ -157,7 +157,12 @@ string currDB = "";
 //=====Main=================================
 int main()
 {
-	loop();
+	//loop();
+	char* test = "12 32 ds we aee";
+	int count = 0;
+
+	char** result = split_line(test, count);
+	
 	return EXIT_SUCCESS;
 }
 

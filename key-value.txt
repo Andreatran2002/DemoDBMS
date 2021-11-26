@@ -18,3 +18,8 @@ db >> show tb1
 
 db >> select * from tb1 where 20110232
 db >> select * from tb1 sortby id
+
+
+//create new value 
+create new tb1 name : Tien , id : 20110735
+	
