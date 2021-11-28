@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include <string.h>
+#include <string.h> 
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
@@ -13,7 +13,6 @@
 
 //====header================
 #include "Hash.h"
-
 #pragma warning(disable : 4996)
 
 using namespace std;
@@ -22,6 +21,9 @@ using namespace std;
 #define LSH_RL_BUFSIZE 1024
 #define LSH_TOK_BUFSIZE 64
 #define LSH_TOK_DELIM " \t\r\n\a"
+string DATA_TYPE[3] = { "string", "number", "boolean" };
+HashMapTable hash;
+string currDB = "";
 
 //=====init function ========
 //void PrintTable(int i);
@@ -29,7 +31,7 @@ void SetCursor(int x, int y);
 int help(char** args, int& count);
 int exit(char** args, int& count);
 int clear(char** args, int& count);
-//int show(char** args, int& count);
+int show(char** args, int& count);
 int use(char** args, int& count);
 int create_database(char** args, int count);
 int create_table(char** args, int count);
@@ -42,6 +44,16 @@ char* read_line(void);
 char** split_line(char* line, int& count);
 int execute(char** args, int& count);
 void loop();
+int GetLength(string a) {
+	int result = 0;
+	int index = 0;
+	for (int i = 0; i < a.length(); i++) {
+		if (a[i] == ' ') {
+			return (int)a[i + 1] - 48;
+		}
+	}
+	return -1;
+}
 const char* builtin_str[] =
 {
   "help",
@@ -50,7 +62,7 @@ const char* builtin_str[] =
   //"update",
   "create",
   "clear",
-  //"show",
+  "show",
   "use",
 };
 int (*builtin_func[]) (char**, int&) = {
@@ -60,7 +72,7 @@ int (*builtin_func[]) (char**, int&) = {
   //&update,
   &create,
   &clear,
-  //&show,
+  &show,
   &use,
 };
 
@@ -147,22 +159,22 @@ char** split_line(char* line, int& count)
 	count = position;
 	return tokens;
 }
+
+
 int execute(char** args, int& count);
 
-//=====init function ========
-HashMapTable hash;
-string currDB = "";
 
 
 //=====Main=================================
 int main()
 {
-	//loop();
-	char* test = "12 32 ds we aee";
-	int count = 0;
+	cout << "   _____ ____    __    ____  ____  ____ " << endl;
+	cout << "  / ___// __ |  / /   / __ |/ __ |/ __ |" << endl;
+	cout << "   __  / / / / / /   / / / / / / / /_/ /" << endl;
+	cout << " ___/ / /_/ / / /___/ /_/ / /_/ / ____/ " << endl;
+	cout << "/____/|___|_|/_____/|____/|____/_/      " << endl;
 
-	char** result = split_line(test, count);
-	
+	loop();
 	return EXIT_SUCCESS;
 }
 
@@ -194,7 +206,7 @@ int create_database(char** args, int count) {
 	string value = "";
 	key = args[2];
 	::hash.Insert(key, value);
-	cout << "[STATUS] [SUCCESS] You have create a database " << key << " successfully.\n";
+	cout << "[STATUS] [SUCCESS] You have create a database " << key << " successfully.\n" << endl;
 	return 1;
 }
 
@@ -214,38 +226,85 @@ int create_table(char** args, int count)
 	for (int i = 3; i < count; i++) {
 		if (strcmp(args[i], ":") == 0) {
 			string colKey = currDB + "_" + args[2] + "_" + args[i - 1];
-			string colValue = args[i + 1];
-			::hash.Update(tbKey, ::hash.SearchKey(tbKey) + " " + colKey);
-			::hash.Insert(colKey, colValue);
+			string dataType = "null";
+			if (strcmp(args[i + 1], "string") == 0)
+				dataType = "0";
+			if (strcmp(args[i + 1], "number") == 0)
+				dataType = "1";
+			if (strcmp(args[i + 1], "boolean") == 0)
+				dataType = "2";
+			if (dataType == "null") {
+				cout << "[STATUS] [ERROR] The data type \"";
+				cout << args[i + 1];
+				cout << "\" is not supported !!" << endl;
+			}
+			else {
+				::hash.Update(tbKey, ::hash.SearchKey(tbKey) + " " + colKey);
+				::hash.Insert(colKey, dataType + " 0");
+			}
 		}
 	}
 
-	cout << "[STATUS] [SUCCESS] You have created table successfully" << endl;
+	cout << "[STATUS] [SUCCESS] You have created table successfully" << endl << endl;
 	return 1;
 }
 
+//=====create value=========================
+//create new tb name : Vy id : 20110735
+/*
+create database db1
+use db1
+create table tb1 name : string id : number oke : oke male : boolean lastname : string
+create new tb1 name : ' Phuong Vy ' id : ' 20110735 ' male : ' true ' lastname : ' VyVy '
+
+*/
+
 int create_value(char** args, int count)
 {
-	if (count < 6) {
+	if (count <= 5) {
 		cout << "[ERROR] Wrong format . Please try another query." << endl;
 		return 1;
 	}
 	string tbKey = currDB + "_" + args[2];
 	string tbValue = ::hash.SearchKey(tbKey);
 	if (tbValue == "[empty]") {
-		cout << "[STATUS] [ERROR] table \"" << args[2] << "\" has not been created yet.";
+		cout << "[STATUS] [ERROR] table \"" << args[2] << "\" has not been created yet." << endl;
 		return 1;
 	}
 	for (int i = 3; i < count; i++) {
-		if (strcmp(args[i], ",") == 0) {
-			string newKey = currDB + "_" + args[2] + args[i - 1];
-			string newValue = args[i + 1];
-			cout << newKey << "  " << newValue;
+		if (strcmp(args[i], ":") == 0) {
+			string colKey = currDB + "_" + args[2] + "_" + args[i - 1];
+			string colValue = ::hash.SearchKey(colKey);
+			string dataType(1, colValue[0]);
+			char index = colValue[2];
+			int length = (int)index - 47;
+
+			if (colValue == "[empty]") {
+				cout << "[STATUS] [FAIL] the key doesn't exists yet!!" << endl;
+			}
+			else {
+				string rowKey = colKey + "_" + index;
+				string rowValue = "";
+				if (strcmp(args[i + 1], "'") == 0) {
+					for (int x = i + 2; x < count; x++) {
+						if (strcmp(args[x], "'") == 0) {
+							break;
+						}
+						else {
+							rowValue = rowValue + args[x] + " ";
+						}
+					}
+					colValue += " " + rowKey;
+				}
+				colValue[2] = '0' + length;
+				::hash.Update(colKey, colValue);
+				::hash.Insert(rowKey, rowValue);
+			}
 		}
 	}
+	cout << endl;
 	return 1;
 }
-
 
 int execute(char** args, int& count)
 {
@@ -303,38 +362,76 @@ int clear(char** args, int& count)
 
 
 //======show================================
-//int show(char** args, int& count)
-//{
-//	if (strcmp(args[1], "database") == 0) {
-//		if (databases.size() == 0)
-//		{
-//			cout << "You haven't entered any database" << endl;
-//			return 1;
-//		}
-//		printf("List database : \n");
-//		for (int i = 0; i < databases.size(); i++)
-//		{
-//			cout << databases[i].Name << " \n";
-//		}
-//	}
-//	else if (strcmp(args[1], "table") == 0) {
-//		if (database_use.Tables.size() == 0)
-//		{
-//			cout << "You haven't entered any table in curren database" << endl;
-//			return 1;
-//		}
-//		printf("List table in current database: \n");
-//		for (int i = 0; i < database_use.Tables.size(); i++)
-//		{
-//			cout << database_use.Tables[i].Name << " \n";
-//		}
-//	}
-//	else {
-//
-//	}
-//
-//	return 1;
-//}
+/*
+create database db1
+use db1
+create table tb1 name : string id : number oke : oke
+create new tb1 name : ' Phuong Vy ' id : ' 20110735 '
+create new tb1 name : ' Pham Nhat Tien ' id : ' 20110735 '
+create new tb1 name : ' Loc ' id : '1311222'
+create new tb1 name : ' Tien dep tai '
+create new tb1 id : ' 125421452 '
+show tb1
+
+*/
+//show tb1 
+int show(char** args, int& count)
+{
+	if (count < 2) {
+		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
+		return 1;
+	}
+	string tbKey = currDB + "_" + args[1];
+	string tbValue = ::hash.SearchKey(tbKey);
+	cout << tbValue << endl;
+
+	if (tbValue == "[empty]") {
+		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
+		return 1;
+	}
+
+	/*for (int i = 0; i < tbValue.length(); i++) {
+		if (tbValue[i] == ' ') {
+			string a = "";
+			for (int j = i + 1; j < tbValue.length(); j++) {
+				if (tbValue[j] == ' ') {
+
+				}
+				else {
+					a += tbValue[j];
+				}
+			}
+		}
+	}*/
+	//string to char
+	int countTb = 0;
+	char** tbList;
+	//const char* line = tbValue.c_str();
+	char* line = new char[tbValue.size() + 1];
+	strcpy(line, tbValue.c_str());
+	//string to char8
+	tbList = split_line(line, countTb);
+	for (int i = 0; i < countTb; i++) {
+		::hash.SearchKey(tbList[i]);
+	}
+	//cout << "change" << endl;
+	system("cls");
+	for (int i = 0; i < countTb; i++) {
+		string tbValue = ::hash.SearchKey(tbList[i]);
+		int length = (int)tbValue[2] - 48;
+		for (int x = 0; x < length; x++) {
+			//cout << x << endl;
+			char index = '0' + x;
+			string stra(tbList[i]);
+			string rowKey = stra + "_" + index;
+			string rowValue = ::hash.SearchKey(rowKey);
+		}
+	}
+	free(line);
+	free(tbList);
+	cout << endl;
+	return 1;
+}
 
 int use(char** args, int& count)
 {

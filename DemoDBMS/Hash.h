@@ -60,6 +60,7 @@ public:
 			}
 			else {
 				cout << "[INSERT] [NEXT>>]." << endl;
+				cout << "[INSERT] [SUCCESS] insert \"" << k << "\": \"" << v << "\". index: " << hash_v % T_S << "." << endl;
 				p->n = en;
 			}
 		}
