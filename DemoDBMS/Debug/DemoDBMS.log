@@ -1,1 +1,9 @@
-﻿  DemoDBMS.vcxproj -> E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\Debug\DemoDBMS.exe
+﻿  DemoDBMS.cpp
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\Hash.h(41,21): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(50,20): warning C4018: '<': signed/unsigned mismatch
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(327,6): warning C4101: 'i': unreferenced local variable
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(497,9): warning C4101: 'arr': unreferenced local variable
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(701,16): warning C4838: conversion from 'int' to 'SHORT' requires a narrowing conversion
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(701,19): warning C4838: conversion from 'int' to 'SHORT' requires a narrowing conversion
+E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\Hash.h(131): warning C4715: 'HashMapTable::SearchKey': not all control paths return a value
+  DemoDBMS.vcxproj -> E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\Debug\DemoDBMS.exe
