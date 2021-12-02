@@ -18,9 +18,6 @@
     <ClCompile Include="DemoDBMS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="exicute.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Hash.h">

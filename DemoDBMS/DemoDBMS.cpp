@@ -9,7 +9,7 @@
 #include <cstring>
 #include <list>
 #include <sstream>
-
+#include <fstream>
 
 //====header================
 #include "Hash.h"
@@ -17,7 +17,25 @@
 
 using namespace std;
 
-
+class DataBaseTable {
+public:
+	string tb_key, tb_value;
+	int row = 0;
+	vector<string> tb_key_index, tb_value_index;
+	void DataBaseTableName(string k, string v) {
+		this->tb_key = k;
+		this->tb_value = v;
+	}
+	void DataBaseTableData(string k, string v) {
+		this->tb_key_index.push_back(k);
+		this->tb_value_index.push_back(v);
+		row++;
+	}
+	void clear() {
+		tb_key_index.clear();
+		tb_value_index.clear();
+	}
+};
 #define LSH_RL_BUFSIZE 1024
 #define LSH_TOK_BUFSIZE 64
 #define LSH_TOK_DELIM " \t\r\n\a"
@@ -33,6 +51,7 @@ int exit(char** args, int& count);
 int clear(char** args, int& count);
 int show(char** args, int& count);
 int use(char** args, int& count);
+int save(char** args, int& count);
 int create_database(char** args, int count);
 int create_table(char** args, int count);
 int create_value(char** args, int count);
@@ -64,6 +83,7 @@ const char* builtin_str[] =
   "clear",
   "show",
   "use",
+  "save",
 };
 int (*builtin_func[]) (char**, int&) = {
   &help,
@@ -74,6 +94,7 @@ int (*builtin_func[]) (char**, int&) = {
   &clear,
   &show,
   &use,
+  &save,
 };
 
 int num_builtins() {
@@ -360,6 +381,49 @@ int clear(char** args, int& count)
 	return 0;
 }
 
+int save(char** args, int& count) {
+	if (currDB == "") {
+		cout << "[STATUS] [SUCCESS] You have to use a database to save" << endl;
+		return 1;
+	}
+	string tbKey = currDB + "_" + args[1];
+	string tbValue = ::hash.SearchKey(tbKey);
+	DataBaseTable tb1;
+	tb1.DataBaseTableName(tbKey, tbValue);
+	int countTb = 0;
+	char** tbList;
+	//const char* line = tbValue.c_str();
+	char* line = new char[tbValue.size() + 1];
+	strcpy(line, tbValue.c_str());
+	//string to char8
+	tbList = split_line(line, countTb);
+	for (int i = 0; i < countTb; i++) {
+		::hash.SearchKey(tbList[i]);
+	}
+	//cout << "change" << endl;
+	system("cls");
+	for (int i = 0; i < countTb; i++) {
+		string tbValue = ::hash.SearchKey(tbList[i]);
+		int length = (int)tbValue[2] - 48;
+		for (int x = 0; x < length; x++) {
+			//cout << x << endl;
+			char index = '0' + x;
+			string stra(tbList[i]);
+			string rowKey = stra + "_" + index;
+			string rowValue = ::hash.SearchKey(rowKey);
+			tb1.DataBaseTableData(rowKey, rowValue);
+		}
+	}
+	free(line);
+	free(tbList);
+	cout << endl;
+	fstream f("D:/" + tbKey + ".dat", ios::binary | ios::out | ios::app);
+	f.write(reinterpret_cast<char*>(&tb1), sizeof(tb1));
+	f.close();
+	cout << "File save" << endl;
+	tb1.clear();
+	return 1;
+}
 
 //======show================================
 /*
