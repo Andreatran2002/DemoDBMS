@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include <string.h> 
+#include <string> 
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
@@ -9,7 +9,7 @@
 #include <cstring>
 #include <list>
 #include <sstream>
-
+#include <fstream>
 
 //====header================
 #include "Hash.h"
@@ -17,14 +17,99 @@
 
 using namespace std;
 
+struct DataBaseTable {
+	/*string tbKey, tbValue;*/
+	vector<string>key_tb;
+	vector<string>value_tb;
+	void add(string k, string v) {
+		key_tb.push_back(k);
+		value_tb.push_back(v);
+	}
+};
+bool output(DataBaseTable& table, string tb_key_name) {
+	ofstream out(tb_key_name, ios::binary);
+	if (!out)
+		return false;
+	/*size_t size0 = table.tbKey.size();
+	out.write(reinterpret_cast<char*>(&size0), sizeof size0);
+	string s = table.tbKey;
+	out.write(s.c_str(), size0);
+	out.write("\0", sizeof(char));
 
+	size_t size1 = table.tbValue.size();
+	out.write(reinterpret_cast<char*>(&size1), sizeof size1);
+	string s1 = table.tbValue;
+	out.write(s1.c_str(), size0);
+	out.write("\0", sizeof(char));*/
+
+	size_t vsize = table.key_tb.size();
+	out.write(reinterpret_cast<char*>(&vsize), sizeof vsize);
+	for (size_t i = 0; i < vsize; i++) {
+		size_t size = table.key_tb[i].size();
+		out.write(reinterpret_cast<char*>(&size), sizeof size);
+		string p = table.key_tb[i];
+		out.write(p.c_str(), table.key_tb[i].size());
+	}
+	size_t vsizev = table.value_tb.size();
+	out.write(reinterpret_cast<char*>(&vsizev), sizeof vsizev);
+	for (size_t i = 0; i < vsizev; i++) {
+		size_t size = table.value_tb[i].size();
+		out.write(reinterpret_cast<char*>(&size), sizeof size);
+		string p = table.value_tb[i];
+		out.write(p.c_str(), table.value_tb[i].size());
+	}
+	return true;
+}
+bool input(DataBaseTable& table, string tb_key_name) {
+	ifstream in(tb_key_name, ios::binary);
+	if (!in)
+		return false;
+	/*size_t size0 = 0;
+	in.read(reinterpret_cast<char*>(&size0), sizeof size0);
+	string s;
+	s.resize(size0);
+	in.read(&s[0], size0);
+
+	size_t size1 = 0;
+	in.read(reinterpret_cast<char*>(&size1), sizeof size1);
+	string s1;
+	s1.resize(size1);
+	in.read(&s1[0], size1);*/
+
+
+	size_t vsize = 0;
+	in.read(reinterpret_cast<char*>(&vsize), sizeof vsize);
+
+	for (size_t i = 0; i < vsize; i++) {
+		size_t size = 0;
+		in.read(reinterpret_cast<char*>(&size), sizeof size);
+		char* str = new char[size + 1];
+		in.read(str, size);
+		str[size] = '\0';
+		table.key_tb.push_back(str);
+		delete[] str;
+	}
+	size_t vsizev = 0;
+	in.read(reinterpret_cast<char*>(&vsizev), sizeof vsizev);
+
+	for (size_t i = 0; i < vsizev; i++) {
+		size_t size = 0;
+		in.read(reinterpret_cast<char*>(&size), sizeof size);
+		char* str = new char[size + 1];
+		in.read(str, size);
+		str[size] = '\0';
+		table.value_tb.push_back(str);
+		delete[] str;
+	}
+	return true;
+}
 #define LSH_RL_BUFSIZE 1024
 #define LSH_TOK_BUFSIZE 64
 #define LSH_TOK_DELIM " \t\r\n\a"
 string DATA_TYPE[3] = { "string", "number", "boolean" };
 HashMapTable hash;
 string currDB = "";
-
+bool readed = false;
 //=====init function ========
 //void PrintTable(int i);
 void SetCursor(int x, int y);
@@ -33,12 +118,14 @@ int exit(char** args, int& count);
 int clear(char** args, int& count);
 int show(char** args, int& count);
 int use(char** args, int& count);
+int save(char** args, int& count);
+int read(char** args, int& count);
 int create_database(char** args, int count);
 int create_table(char** args, int count);
 int create_value(char** args, int count);
 int create(char** args, int& count);
 //int update(char** args, int& count);
-//int select(char** args, int& count);
+int select(char** args, int& count);
 int num_builtins();
 char* read_line(void);
 char** split_line(char* line, int& count);
@@ -58,22 +145,26 @@ const char* builtin_str[] =
 {
   "help",
   "exit",
-  //"select",
+  "select",
   //"update",
   "create",
   "clear",
   "show",
   "use",
+  "save",
+  "read",
 };
 int (*builtin_func[]) (char**, int&) = {
   &help,
   &exit,
-  //&select,
+  &select,
   //&update,
   &create,
   &clear,
   &show,
   &use,
+  &save,
+  &read,
 };
 
 int num_builtins() {
@@ -245,7 +336,8 @@ int create_table(char** args, int count)
 		}
 	}
 
-	cout << "[STATUS] [SUCCESS] You have created table successfully" << endl << endl;
+	cout << "[STATUS] [SUCCESS] You have created table successfully" << endl;
+	cout << "[STATUS] [WARNING] You should enter a new value with enough columns. If empty value, enter ' null ' to avoid errors in the system" << endl << endl;
 	return 1;
 }
 
@@ -278,7 +370,6 @@ int create_value(char** args, int count)
 			string dataType(1, colValue[0]);
 			char index = colValue[2];
 			int length = (int)index - 47;
-
 			if (colValue == "[empty]") {
 				cout << "[STATUS] [FAIL] the key doesn't exists yet!!" << endl;
 			}
@@ -294,7 +385,6 @@ int create_value(char** args, int count)
 							rowValue = rowValue + args[x] + " ";
 						}
 					}
-					colValue += " " + rowKey;
 				}
 				colValue[2] = '0' + length;
 				::hash.Update(colKey, colValue);
@@ -325,11 +415,12 @@ int execute(char** args, int& count)
 
 int help(char** args, int& count)
 {
-	int i;
 	printf("------------------------Menu help-------------------------- \n");
 	printf("clear :  clean the screen \n");
 	printf("exit  :  terminate the program --.\n");
 	printf("print :  print the database into .txt file --.\n");
+	printf("save  :  save the database table to binary file --.\n");
+	printf("read  :  read the database table file --.\n");
 	printf("------------------------Menu help-------------------------- \n");
 	return 1;
 }
@@ -360,50 +451,21 @@ int clear(char** args, int& count)
 	return 0;
 }
 
-
-//======show================================
-/*
-create database db1
-use db1
-create table tb1 name : string id : number oke : oke
-create new tb1 name : ' Phuong Vy ' id : ' 20110735 '
-create new tb1 name : ' Pham Nhat Tien ' id : ' 20110735 '
-create new tb1 name : ' Loc ' id : '1311222'
-create new tb1 name : ' Tien dep tai '
-create new tb1 id : ' 125421452 '
-show tb1
-
-*/
-//show tb1 
-int show(char** args, int& count)
-{
-	if (count < 2) {
-		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
+int save(char** args, int& count) {
+	DataBaseTable tb1;
+	if (currDB == "") {
+		cout << "[STATUS] [SUCCESS] You have to use a database to save" << endl;
 		return 1;
 	}
 	string tbKey = currDB + "_" + args[1];
+	/*tb1.tbKey = tbKey;*/
 	string tbValue = ::hash.SearchKey(tbKey);
-	cout << tbValue << endl;
-
+	/*tb1.tbValue = tbValue;*/
+	tb1.add(tbKey, tbValue);
 	if (tbValue == "[empty]") {
 		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
 		return 1;
 	}
-
-	/*for (int i = 0; i < tbValue.length(); i++) {
-		if (tbValue[i] == ' ') {
-			string a = "";
-			for (int j = i + 1; j < tbValue.length(); j++) {
-				if (tbValue[j] == ' ') {
-
-				}
-				else {
-					a += tbValue[j];
-				}
-			}
-		}
-	}*/
-	//string to char
 	int countTb = 0;
 	char** tbList;
 	//const char* line = tbValue.c_str();
@@ -415,7 +477,7 @@ int show(char** args, int& count)
 		::hash.SearchKey(tbList[i]);
 	}
 	//cout << "change" << endl;
-	system("cls");
+	//system("cls");
 	for (int i = 0; i < countTb; i++) {
 		string tbValue = ::hash.SearchKey(tbList[i]);
 		int length = (int)tbValue[2] - 48;
@@ -425,11 +487,134 @@ int show(char** args, int& count)
 			string stra(tbList[i]);
 			string rowKey = stra + "_" + index;
 			string rowValue = ::hash.SearchKey(rowKey);
+			tb1.add(rowKey, rowValue);
 		}
 	}
-	free(line);
+	delete[] line;
 	free(tbList);
 	cout << endl;
+	if (!output(tb1, tbKey)) {
+		cout << "Error writing file.\n";
+		return 1;
+	}
+	cout << "File save" << endl;
+	return 1;
+}
+
+//======show================================
+/*
+create database db1
+use db1
+create table tb1 name : string id : number phone : number
+create new tb1 name : ' Phuong Vy ' id : ' 20110735 ' phone : ' 0788892441 '
+create new tb1 name : ' Pham Nhat Tien ' id : ' 20110735 ' phone : ' 0394973287 '
+create new tb1 name : ' Loc ' id : '1311222' phone : ' 039292932 '
+create new tb1 name : ' Tien dep tai ' id : ' 1 ' phone : ' 0785984392 '
+show tb1
+
+*/
+//show tb1 
+int show(char** args, int& count)
+{
+	if (count < 2) {
+		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
+		return 1;
+	}
+	string tbKey, tbValue;
+	tbKey = currDB + "_" + args[1];
+	tbValue = ::hash.SearchKey(tbKey);
+
+	if (tbValue == "[empty]") {
+		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
+		return 1;
+	}
+	system("cls");
+	//string to char
+	int countTb = 0;
+	char** tbList;
+	//const char* line = tbValue.c_str();
+	char* line = new char[tbValue.size() + 1];
+	strcpy(line, tbValue.c_str());
+	//string to char8
+	tbList = split_line(line, countTb);
+	string a = ::hash.SearchKey(tbList[0]);
+	int lengthi = (int)a[2] - 48;
+	int baseHeight = countTb * lengthi + 3;
+	int lengthOut = 0;
+	for (int i = 0; i < countTb; i++) {
+		SetCursor(i * 30, baseHeight);
+		cout << "|" << tbList[i];
+		SetCursor(0, i * lengthi);
+		string tbValue = ::hash.SearchKey(tbList[i]);
+		int length = (int)tbValue[2] - 48;
+		lengthOut = length;
+		for (int x = 0; x < length; x++) {
+			//cout << x << endl;
+			char index = '0' + x;
+			string stra(tbList[i]);
+			string rowKey = stra + "_" + index;
+			SetCursor(0, i * lengthi + x);
+			string rowValue = ::hash.SearchKey(rowKey);
+			SetCursor(i * 30, baseHeight + x + 2);
+			cout << "|" << rowValue;
+		}
+	}
+
+	for (int i = 0; i < lengthOut + 2; i++) {
+		SetCursor(countTb * 30, baseHeight + i);
+		if (i == 0)
+			cout << "| [Column] ";
+		else if (i == 1)
+			cout << "|";
+		else
+			cout << "| [" << i - 1 << "]";
+	}
+	for (int i = 0; i < countTb * 30; i++) {
+		SetCursor(i, baseHeight + 1);
+		if (i % 30 == 0)
+			cout << "+";
+		else
+			cout << "-";
+	}
+	for (int i = 0; i <= countTb * 30; i++) {
+		SetCursor(i, baseHeight - 1);
+		cout << "_";
+	}
+	for (int i = 0; i <= countTb * 30; i++) {
+		SetCursor(i, baseHeight + lengthOut + 2);
+		if (i % 30 == 0)
+			cout << "|";
+		else
+			cout << "_";
+	}
+
+	delete[] line;
+	free(tbList);
+	SetCursor(0, baseHeight + lengthOut + 2);
+	cout << endl;
+	return 1;
+}
+int read(char** args, int& count) {
+	readed = true;
+	if (count < 2) {
+		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
+		return 1;
+	}
+	DataBaseTable tb;
+	string tbKeyCheck = currDB + "_" + args[1];
+	if (!input(tb, tbKeyCheck)) {
+		cout << "Error reading file.\n";
+		return 1;
+	}
+	if (tb.key_tb[0] != tbKeyCheck) {
+		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
+		return 1;
+	}
+	//system("cls");
+	for (unsigned i = 0;i < tb.key_tb.size();++i) {
+		::hash.Insert(tb.key_tb[i], tb.value_tb[i]);
+	}
+
 	return 1;
 }
 
@@ -469,9 +654,134 @@ int create(char** args, int& count)
 //{
 //	return 1;
 //}
+//select name id from tb1
+int select(char** args, int& count)
+{
+	bool check = false;
+	int indexFrom = -1;
+	char** arr;
+	for (int i = 0; i < count; i++) {
+		if (strcmp(args[i], "from") == 0 && i != 1 && i != count - 1) {
+			indexFrom = i;
+			check = true;
+		}
+	}
+	if (check) {
+		if (strcmp(args[1], "*") == 0) {
+			string tbKey = currDB + "_" + args[count - 1];
+			string tbValue = ::hash.SearchKey(tbKey);
+			if (tbValue == "[empty]") {
+				cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
+				return 1;
+			}
+			system("cls");
+			//string to char
+			int countTb = 0;
+			char** tbList;
+			//const char* line = tbValue.c_str();
+			char* line = new char[tbValue.size() + 1];
+			strcpy(line, tbValue.c_str());
+			//string to char8
+			tbList = split_line(line, countTb);
+			string a = ::hash.SearchKey(tbList[0]);
+			int lengthi = (int)a[2] - 48;
+			int baseHeight = countTb * lengthi + 3;
+			int lengthOut = 0;
+			for (int i = 0; i < countTb; i++) {
+				SetCursor(i * 30, baseHeight);
+				cout << "|" << tbList[i];
+				SetCursor(0, i * lengthi);
+				string tbValue = ::hash.SearchKey(tbList[i]);
+				int length = (int)tbValue[2] - 48;
+				lengthOut = length;
+				for (int x = 0; x < length; x++) {
+					//cout << x << endl;
+					char index = '0' + x;
+					string stra(tbList[i]);
+					string rowKey = stra + "_" + index;
+					SetCursor(0, i * lengthi + x);
+					string rowValue = ::hash.SearchKey(rowKey);
+					SetCursor(i * 30, baseHeight + x + 2);
+					cout << "|" << rowValue;
+				}
+			}
 
-//int select(char** args, int& count)
-//{
+			for (int i = 0; i < lengthOut + 2; i++) {
+				SetCursor(countTb * 30, baseHeight + i);
+				if (i == 0)
+					cout << "| [Column] ";
+				else if (i == 1)
+					cout << "|";
+				else
+					cout << "| [" << i - 1 << "]";
+			}
+			for (int i = 0; i < countTb * 30; i++) {
+				SetCursor(i, baseHeight + 1);
+				if (i % 30 == 0)
+					cout << "+";
+				else
+					cout << "-";
+			}
+			for (int i = 0; i <= countTb * 30; i++) {
+				SetCursor(i, baseHeight - 1);
+				cout << "_";
+			}
+			for (int i = 0; i <= countTb * 30; i++) {
+				SetCursor(i, baseHeight + lengthOut + 2);
+				if (i % 30 == 0)
+					cout << "|";
+				else
+					cout << "_";
+
+			}
+			delete[] line;
+			free(tbList);
+			SetCursor(0, baseHeight + lengthOut + 2);
+			cout << endl;
+			return 1;
+
+		}
+		string tbKey = currDB + "_" + args[count - 1];
+		string tbValue = ::hash.SearchKey(tbKey);
+		if (tbValue == "[empty]") {
+			cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
+			return 1;
+		}
+		system("cls");
+		int baseHeight = 0;
+		for (int i = 1; i < indexFrom; i++) {
+			string key = currDB + "_" + args[count - 1] + "_" + args[i];
+			SetCursor(0, i - 1);
+			string a = ::hash.SearchKey(key);
+			int lengthi = (int)a[2] - 48;
+			baseHeight = indexFrom * lengthi + 3;
+			int lengthOut = 0;
+			SetCursor((i - 1) * 30, baseHeight);
+			cout << "|" << key;
+			SetCursor(0, i * lengthi);
+			int length = (int)a[2] - 48;
+			lengthOut = length;
+			for (int x = 0; x < length; x++) {
+				//cout << x << endl;
+				char index = '0' + x;
+				string stra(key);
+				string rowKey = stra + "_" + index;
+				SetCursor(0, i * lengthi + x);
+				string rowValue = ::hash.SearchKey(rowKey);
+				SetCursor((i - 1) * 30, baseHeight + x + 2);
+				cout << "|" << rowValue;
+			}
+		}
+		SetCursor(0, indexFrom + baseHeight + 4);
+		cout << endl;
+		return 1;
+	}
+	else {
+		cout << "[STATUS] [ERROR] Wrong format.Please try another query." << endl;
+		return 1;
+	}
+	return 1;
+}
 //	if (strcmp(args[1], "*") == 0) {
 //		if (strcmp(args[2], "from") == 0) {
 //			for (int i = 0; i < database_use.Tables.size(); i++) {
