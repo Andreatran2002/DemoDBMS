@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "f0de8e04-3b26-4a55-8f45-eea70003698c": {
+      "ProjectGuid": "f0de8e04-3b26-4a55-8f45-eea70003698c",
+      "DisplayName": "DemoDBMS",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}
