@@ -25,6 +25,10 @@ string DATA_TYPE[3] = { "string", "number", "boolean" };
 HashMapTable hash;
 string currDB = "";
 
+//hash.Insert(key[i],value[i]);
+//use 
+//show *
+
 //=====init function ========
 //void PrintTable(int i);
 void SetCursor(int x, int y);
