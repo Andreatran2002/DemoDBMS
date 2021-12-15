@@ -30,7 +30,8 @@ bool output(DataBaseTable& table, string tb_key_name) {
 	ofstream out(tb_key_name, ios::binary);
 	if (!out)
 		return false;
-	/*size_t size0 = table.tbKey.size();
+	/*
+	size_t size0 = table.tbKey.size();
 	out.write(reinterpret_cast<char*>(&size0), sizeof size0);
 	string s = table.tbKey;
 	out.write(s.c_str(), size0);
@@ -40,7 +41,8 @@ bool output(DataBaseTable& table, string tb_key_name) {
 	out.write(reinterpret_cast<char*>(&size1), sizeof size1);
 	string s1 = table.tbValue;
 	out.write(s1.c_str(), size0);
-	out.write("\0", sizeof(char));*/
+	out.write("\0", sizeof(char));
+	*/
 
 	size_t vsize = table.key_tb.size();
 	out.write(reinterpret_cast<char*>(&vsize), sizeof vsize);
@@ -64,7 +66,8 @@ bool input(DataBaseTable& table, string tb_key_name) {
 	ifstream in(tb_key_name, ios::binary);
 	if (!in)
 		return false;
-	/*size_t size0 = 0;
+	/*'
+	size_t size0 = 0;
 	in.read(reinterpret_cast<char*>(&size0), sizeof size0);
 	string s;
 	s.resize(size0);
@@ -74,7 +77,8 @@ bool input(DataBaseTable& table, string tb_key_name) {
 	in.read(reinterpret_cast<char*>(&size1), sizeof size1);
 	string s1;
 	s1.resize(size1);
-	in.read(&s1[0], size1);*/
+	in.read(&s1[0], size1);
+	*/
 
 
 	size_t vsize = 0;
@@ -108,6 +112,9 @@ bool input(DataBaseTable& table, string tb_key_name) {
 #define LSH_TOK_DELIM " \t\r\n\a"
 string DATA_TYPE[3] = { "string", "number", "boolean" };
 HashMapTable hash;
+
+//
+
 string currDB = "";
 bool readed = false;
 //=====init function ========
@@ -124,7 +131,7 @@ int create_database(char** args, int count);
 int create_table(char** args, int count);
 int create_value(char** args, int count);
 int create(char** args, int& count);
-//int update(char** args, int& count);
+int update(char** args, int& count);
 int select(char** args, int& count);
 int num_builtins();
 char* read_line(void);
@@ -146,7 +153,7 @@ const char* builtin_str[] =
   "help",
   "exit",
   "select",
-  //"update",
+  "update",
   "create",
   "clear",
   "show",
@@ -158,7 +165,7 @@ int (*builtin_func[]) (char**, int&) = {
   &help,
   &exit,
   &select,
-  //&update,
+  &update,
   &create,
   &clear,
   &show,
@@ -369,6 +376,7 @@ int create_value(char** args, int count)
 			string colValue = ::hash.SearchKey(colKey);
 			string dataType(1, colValue[0]);
 			char index = colValue[2];
+			cout << index;
 			int length = (int)index - 47;
 			if (colValue == "[empty]") {
 				cout << "[STATUS] [FAIL] the key doesn't exists yet!!" << endl;
@@ -517,7 +525,7 @@ show tb1
 int show(char** args, int& count)
 {
 	if (count < 2) {
-		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
+		cout << "[STATUS] [ERROR] Wrong format	. Please try another query." << endl;
 		return 1;
 	}
 	string tbKey, tbValue;
@@ -594,6 +602,46 @@ int show(char** args, int& count)
 	cout << endl;
 	return 1;
 }
+/*
+create database db1
+use db1
+create table tb1 name : string
+create new tb1 name : ' Vy '
+create new tb1 name : ' Tien '
+
+update tb1 1 name : ' Vy modify '
+
+*/
+int update(char** args, int& count) {
+
+	if (count <= 4) {
+		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
+		return 1;
+	}
+
+	for (int i = 0; i < count; i++) {
+		if (strcmp(":", args[i]) == 0) {
+			string valueKey = currDB + "_" + args[1] + "_" + args[i - 1] + "_" + args[2];
+			string valueValue = ::hash.SearchKey(valueKey);
+			string updateValue = "";
+
+			if (strcmp(args[i + 1], "'") == 0) {
+				for (int x = i + 2; x < count; x++) {
+					if (strcmp(args[x], "'") == 0) {
+						break;
+					}
+					else {
+						updateValue = updateValue + args[x] + ' ';
+					}
+				}
+			}
+			::hash.Update(valueKey, updateValue);
+		}
+	}
+
+	return 1;
+}
+
 int read(char** args, int& count) {
 	readed = true;
 	if (count < 2) {
@@ -611,7 +659,7 @@ int read(char** args, int& count) {
 		return 1;
 	}
 	//system("cls");
-	for (unsigned i = 0;i < tb.key_tb.size();++i) {
+	for (unsigned i = 0; i < tb.key_tb.size(); ++i) {
 		::hash.Insert(tb.key_tb[i], tb.value_tb[i]);
 	}
 

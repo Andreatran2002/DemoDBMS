@@ -26,10 +26,27 @@ struct HashTableEntry {
 	}
 };
 
+//HTE-HTE-NULL
+//HTE-HTE-HTE-NULL
+//HTE-HTE-HTE-HTE-NULL
+//HTE-HTE-HTE-HTE-HTE-NULL
+//HTE-HTE-HTE-NULL
+//HTE-HTE-NULL
+//HTE-NULL
+// 
+// 
+//for i (0 -> T_S)
+//	HashTableEntry* en = ht[i]
+//		while(en!+null) {
+//			en->k
+//			en->v
+//			en = en->n
+//		}
+
 class HashMapTable {
 public:
 	const int PRIME_CONT = 13;
-	HashTableEntry** ht, ** top;
+	HashTableEntry** ht;
 	HashMapTable() {
 		ht = new HashTableEntry * [T_S];
 		for (int i = 0; i < T_S; i++)
@@ -108,6 +125,7 @@ public:
 		delete en;
 		cout << "[REMOVE] [SUCCESS] Element Deleted" << endl;
 	}
+
 	string SearchKey(string k) {
 		int hash_v = HashFunc(k);
 		bool flag = false;
