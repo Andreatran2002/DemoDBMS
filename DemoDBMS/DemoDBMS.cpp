@@ -99,7 +99,7 @@ int create_database(char** args, int count);
 int create_table(char** args, int count);
 int create_value(char** args, int count);
 int create(char** args, int& count);
-//int update(char** args, int& count);
+int update(char** args, int& count);
 int select(char** args, int& count);
 int num_builtins();
 char* read_line(void);
@@ -122,7 +122,7 @@ const char* builtin_str[] =
   "help",
   "exit",
   "select",
-  //"update",
+  "update",
   "create",
   "clear",
   "show",
@@ -135,7 +135,7 @@ int (*builtin_func[]) (char**, int&) = {
   &help,
   &exit,
   &select,
-  //&update,
+  &update,
   &create,
   &clear,
   &show,
@@ -242,7 +242,7 @@ int main()
 	cout << "   __  / / / / / /   / / / / / / / /_/ /" << endl;
 	cout << " ___/ / /_/ / / /___/ /_/ / /_/ / ____/ " << endl;
 	cout << "/____/|___|_|/_____/|____/|____/_/      " << endl;
-
+	cout << "\nType 'help' to see more... \n";
 	loop();
 	return EXIT_SUCCESS;
 }
@@ -393,13 +393,21 @@ int execute(char** args, int& count)
 
 int help(char** args, int& count)
 {
-	printf("------------------------Menu help-------------------------- \n");
-	printf("clear :  clean the screen \n");
-	printf("exit  :  terminate the program --.\n");
-	printf("print :  print the database into .txt file --.\n");
-	printf("save  :  save the database table to binary file --.\n");
-	printf("read  :  read the database table file --.\n");
-	printf("------------------------Menu help-------------------------- \n");
+	printf("------------------------Menu help--------------------------------------------------------------------- \n");
+	printf("clear                                                   :  clean the screen \n");
+	printf("exit                                                    :  terminate the program \n");
+	printf("save <table>                                            :  save the database table to binary file\n");
+	printf("read <database>_<table>	                                :  read the database table file\n");
+	printf("create database <database>                              :  create new database\n");
+	printf("use <database>                                          :  use new table \n");
+	printf("create table <table>  <column> : <type>                 :  create new table \n");
+	printf("create new <table>  <column> : ' <value> '              :  create new value \n");
+	printf("update <table> <index> <column> : ' <updateValue> '     :  update new value \n");
+	printf("remove <table> <index>                                  :  remove value \n");
+	printf("select <column1> <column2> from <table>	                :  select columns from a table --.\n");
+
+	printf("\nExample:\ncreate database db1\nuse db1\ncreate table tb1 name : string id : number phone : number\ncreate new tb1 name : ' Phuong Vy ' id : ' 20110735 ' phone : ' 0788892441 '\ncreate new tb1 name : ' Pham Nhat Tien ' id : ' 20110735 ' phone : ' 0394973287 '\ncreate new tb1 name : ' Loc ' id : '1311222' phone : ' 039292932 '\ncreate new tb1 name : ' Tien dep tai ' id : ' 1 ' phone : ' 0785984392 '\nshow tb1\n");
+	printf("------------------------Menu help---------------------------------------------------------------------- \n");
 	return 1;
 }
 
@@ -444,40 +452,13 @@ int save(char** args, int& count) {
 		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
 		return 1;
 	}
-	for (int i = 0;i < T_S;i++) {
+	for (int i = 0; i < T_S; i++) {
 		HashTableEntry* en = ::hash.ht[i];
 		while (en != NULL) {
 			tb1.add(en->k, en->v);
 			en = en->n;
 		}
 	}
-	//int countTb = 0;
-	//char** tbList;
-	////const char* line = tbValue.c_str();
-	//char* line = new char[tbValue.size() + 1];
-	//strcpy(line, tbValue.c_str());
-	////string to char8
-	//tbList = split_line(line, countTb);
-	//for (int i = 0; i < countTb; i++) {
-	//	::hash.SearchKey(tbList[i]);
-	//}
-	////cout << "change" << endl;
-	////system("cls");
-	//for (int i = 0; i < countTb; i++) {
-	//	string tbValue = ::hash.SearchKey(tbList[i]);
-	//	int length = (int)tbValue[2] - 48;
-	//	for (int x = 0; x < length; x++) {
-	//		//cout << x << endl;
-	//		char index = '0' + x;
-	//		string stra(tbList[i]);
-	//		string rowKey = stra + "_" + index;
-	//		string rowValue = ::hash.SearchKey(rowKey);
-	//		tb1.add(rowKey, rowValue);
-	//	}
-	//}
-	//delete[] line;
-	//free(tbList);
-	//cout << endl;
 	if (!output(tb1, tbKey)) {
 		cout << "Error writing file.\n";
 		return 1;
@@ -499,6 +480,36 @@ show tb1
 
 */
 //show tb1 
+int update(char** args, int& count) {
+
+	if (count <= 4) {
+		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
+		return 1;
+	}
+
+	for (int i = 0; i < count; i++) {
+		if (strcmp(":", args[i]) == 0) {
+			string valueKey = currDB + "_" + args[1] + "_" + args[i - 1] + "_" + args[2];
+			string valueValue = ::hash.SearchKey(valueKey);
+			string updateValue = "";
+
+			if (strcmp(args[i + 1], "'") == 0) {
+				for (int x = i + 2; x < count; x++) {
+					if (strcmp(args[x], "'") == 0) {
+						break;
+					}
+					else {
+						updateValue = updateValue + args[x] + ' ';
+					}
+				}
+			}
+			::hash.Update(valueKey, updateValue);
+		}
+	}
+
+	return 1;
+}
+
 int show(char** args, int& count)
 {
 	if (count < 2) {
@@ -552,7 +563,7 @@ int show(char** args, int& count)
 		else if (i == 1)
 			cout << "|";
 		else
-			cout << "| [" << i - 1 << "]";
+			cout << "| [" << i - 2 << "]";
 	}
 	for (int i = 0; i < countTb * 30; i++) {
 		SetCursor(i, baseHeight + 1);
@@ -596,7 +607,7 @@ int read(char** args, int& count) {
 		return 1;
 	}
 	//system("cls");
-	for (unsigned i = 0;i < tb.key_tb.size();++i) {
+	for (unsigned i = 0; i < tb.key_tb.size(); ++i) {
 		::hash.Insert(tb.key_tb[i], tb.value_tb[i]);
 	}
 
@@ -923,7 +934,7 @@ int remove(char** args, int& count) {
 		::hash.Remove(rowKey);
 		string lenval = ::hash.SearchKey(stra);
 		int len = int(lenval[2]) - 49;
-		string newval = to_string(i) + " "+ to_string(len) ;
+		string newval = to_string(i) + " " + to_string(len);
 		::hash.Update(stra, newval);
 	}
 	delete[] line;
