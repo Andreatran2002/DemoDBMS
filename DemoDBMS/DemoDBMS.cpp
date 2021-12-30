@@ -174,7 +174,7 @@ char* read_line(void)
 	}
 
 	while (1) {
-		// Read a character
+		 // Read a character
 		c = getchar();
 
 		// If we hit EOF, replace it with a null character and return.
@@ -247,7 +247,10 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-//=====The Loop=============================
+/* -------------------------------------------------------------------------- */
+/*                                    loop                                    */
+/* -------------------------------------------------------------------------- */
+
 void loop()
 {
 	char* line;
@@ -279,7 +282,6 @@ int create_database(char** args, int count) {
 	return 1;
 }
 
-//=====create Table=========================
 int create_table(char** args, int count)
 {
 	if (currDB == "") {
@@ -374,6 +376,7 @@ int create_value(char** args, int count)
 	return 1;
 }
 
+
 int execute(char** args, int& count)
 {
 	int i;
@@ -430,13 +433,18 @@ int exit(char** args, int& count)
 		}
 	}
 }
-
+/* -------------------------------------------------------------------------- */
+/*                                xóa màn hình                                */
+/* -------------------------------------------------------------------------- */
 int clear(char** args, int& count)
 {
 	system("cls");
 	return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                lưu vào file                                */
+/* -------------------------------------------------------------------------- */
 int save(char** args, int& count) {
 	DataBaseTable tb1;
 	if (currDB == "") {
@@ -480,10 +488,21 @@ show tb1
 
 */
 //show tb1 
+/* -------------------------------------------------------------------------- */
+/*                                 Hàm update                                 */
+/* -------------------------------------------------------------------------- */
 int update(char** args, int& count) {
 
 	if (count <= 4) {
 		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
+		return 1;
+	}
+	string tbKey, tbValue;
+	tbKey = currDB + "_" + args[1];
+	tbValue = ::hash.SearchKey(tbKey);
+
+	if (tbValue == "[empty]") {
+		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
 		return 1;
 	}
 
@@ -510,6 +529,9 @@ int update(char** args, int& count) {
 	return 1;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                  hiển thị                                  */
+/* -------------------------------------------------------------------------- */
 int show(char** args, int& count)
 {
 	if (count < 2) {
@@ -590,6 +612,9 @@ int show(char** args, int& count)
 	cout << endl;
 	return 1;
 }
+/* -------------------------------------------------------------------------- */
+/*                                 đọc từ file                                */
+/* -------------------------------------------------------------------------- */
 int read(char** args, int& count) {
 	readed = true;
 	if (count < 2) {

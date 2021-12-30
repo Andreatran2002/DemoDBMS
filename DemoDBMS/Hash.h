@@ -45,7 +45,7 @@ struct HashTableEntry {
 
 class HashMapTable {
 public:
-	const int PRIME_CONT = 13;
+	const int PRIME_CONT = 31;
 	HashTableEntry** ht;
 	HashMapTable() {
 		ht = new HashTableEntry * [T_S];
