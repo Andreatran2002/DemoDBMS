@@ -2,5 +2,4 @@
 E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(691,9): warning C4101: 'arr': unreferenced local variable
 E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(896,16): warning C4838: conversion from 'int' to 'SHORT' requires a narrowing conversion
 E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\DemoDBMS.cpp(896,19): warning C4838: conversion from 'int' to 'SHORT' requires a narrowing conversion
-E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\DemoDBMS\Hash.h(149): warning C4715: 'HashMapTable::SearchKey': not all control paths return a value
   DemoDBMS.vcxproj -> E:\Studyspace\UTE\2.1\data-structure\Project\DemoDBMS\x64\Debug\DemoDBMS.exe

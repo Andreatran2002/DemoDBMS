@@ -93,7 +93,7 @@ int exit(char** args, int& count);
 int clear(char** args, int& count);
 int show(char** args, int& count);
 int use(char** args, int& count);
-int save(char** args, int& count);
+//int save(char** args, int& count);
 int read(char** args, int& count);
 int create_database(char** args, int count);
 int create_table(char** args, int count);
@@ -140,7 +140,7 @@ int (*builtin_func[]) (char**, int&) = {
   &clear,
   &show,
   &use,
-  &save,
+  //&save,
   &read,
   &remove,
 };
@@ -445,35 +445,35 @@ int clear(char** args, int& count)
 /* -------------------------------------------------------------------------- */
 /*                                lưu vào file                                */
 /* -------------------------------------------------------------------------- */
-int save(char** args, int& count) {
-	DataBaseTable tb1;
-	if (currDB == "") {
-		cout << "[STATUS] [SUCCESS] You have to use a database to save" << endl;
-		return 1;
-	}
-	string tbKey = currDB + "_" + args[1];
-	/*tb1.tbKey = tbKey;*/
-	string tbValue = ::hash.SearchKey(tbKey);
-	/*tb1.tbValue = tbValue;*/
-	tb1.add(tbKey, tbValue);
-	if (tbValue == "[empty]") {
-		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
-		return 1;
-	}
-	for (int i = 0; i < T_S; i++) {
-		HashTableEntry* en = ::hash.ht[i];
-		while (en != NULL) {
-			tb1.add(en->k, en->v);
-			en = en->n;
-		}
-	}
-	if (!output(tb1, tbKey)) {
-		cout << "Error writing file.\n";
-		return 1;
-	}
-	cout << "File save" << endl;
-	return 1;
-}
+//int save(char** args, int& count) {
+//	DataBaseTable tb1;
+//	if (currDB == "") {
+//		cout << "[STATUS] [SUCCESS] You have to use a database to save" << endl;
+//		return 1;
+//	}
+//	string tbKey = currDB + "_" + args[1];
+//	/*tb1.tbKey = tbKey;*/
+//	string tbValue = ::hash.SearchKey(tbKey);
+//	/*tb1.tbValue = tbValue;*/
+//	tb1.add(tbKey, tbValue);
+//	if (tbValue == "[empty]") {
+//		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
+//		return 1;
+//	}
+//	for (int i = 0; i < T_S; i++) {
+//		HashTableEntry* en = ::hash.ht[i];
+//		while (en != NULL) {
+//			tb1.add(en->k, en->v);
+//			en = en->n;
+//		}
+//	}
+//	if (!output(tb1, tbKey)) {
+//		cout << "Error writing file.\n";
+//		return 1;
+//	}
+//	cout << "File save" << endl;
+//	return 1;
+//}
 
 //======show================================
 /*
