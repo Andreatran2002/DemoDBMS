@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
@@ -181,7 +181,7 @@ struct Node {
 	Node* next;
 };
 
-constexpr auto ST = 93;
+constexpr auto ST = 97;
 class HashMapTable {
 public:
 	int PRIME_CONST = 31;
@@ -275,8 +275,9 @@ public:
 	}
 
 	void Update(string key, string value) {
+		//index của key bên trong hash tale 
 		int hashedKey = HashFunction(key);
-		Node* node = HT[hashedKey];
+		Node* node = HT[hashedKey]; // Lấy liên kết đơn ở vị trí hashedKey(index) ta
 		while (node != NULL && node->key != key)
 			node = node->next;
 		if (node == NULL) {
@@ -284,6 +285,7 @@ public:
 			return;
 		}
 		node->value = value;
+		cout << "[UPDATE] [SUCCESS] No Element found at key \"" << key << "\"" << endl;
 		return;
 	}
 

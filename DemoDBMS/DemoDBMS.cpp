@@ -497,6 +497,7 @@ int update(char** args, int& count) {
 		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
 		return 1;
 	}
+
 	string tbKey, tbValue;
 	tbKey = currDB + "_" + args[1];
 	tbValue = ::hash.SearchKey(tbKey);
@@ -525,7 +526,6 @@ int update(char** args, int& count) {
 			::hash.Update(valueKey, updateValue);
 		}
 	}
-
 	return 1;
 }
 
@@ -642,15 +642,7 @@ int read(char** args, int& count) {
 
 int use(char** args, int& count)
 {
-	if (readed == true) {
-		string str(args[1]);
-		string delimiter = "_";
-		currDB = str.substr(0, str.find(delimiter));
-		cout << "[STATUS] using database: " << currDB << endl;
-		readed = false;
-		return 1;
-	}
-	if (::hash.SearchKey(args[1]) != "empty") {
+	if (::hash.SearchKey(args[1]) != "[empty]") {
 		currDB = args[1];
 		cout << "[STATUS] using database: " << currDB << endl;
 		return 1;
