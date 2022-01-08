@@ -93,7 +93,7 @@ int exit(char** args, int& count);
 int clear(char** args, int& count);
 int show(char** args, int& count);
 int use(char** args, int& count);
-//int save(char** args, int& count);
+int save(char** args, int& count);
 int read(char** args, int& count);
 int create_database(char** args, int count);
 int create_table(char** args, int count);
@@ -140,7 +140,7 @@ int (*builtin_func[]) (char**, int&) = {
   &clear,
   &show,
   &use,
-  //&save,
+  &save,
   &read,
   &remove,
 };
@@ -445,35 +445,35 @@ int clear(char** args, int& count)
 /* -------------------------------------------------------------------------- */
 /*                                lưu vào file                                */
 /* -------------------------------------------------------------------------- */
-//int save(char** args, int& count) {
-//	DataBaseTable tb1;
-//	if (currDB == "") {
-//		cout << "[STATUS] [SUCCESS] You have to use a database to save" << endl;
-//		return 1;
-//	}
-//	string tbKey = currDB + "_" + args[1];
-//	/*tb1.tbKey = tbKey;*/
-//	string tbValue = ::hash.SearchKey(tbKey);
-//	/*tb1.tbValue = tbValue;*/
-//	tb1.add(tbKey, tbValue);
-//	if (tbValue == "[empty]") {
-//		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
-//		return 1;
-//	}
-//	for (int i = 0; i < T_S; i++) {
-//		HashTableEntry* en = ::hash.ht[i];
-//		while (en != NULL) {
-//			tb1.add(en->k, en->v);
-//			en = en->n;
-//		}
-//	}
-//	if (!output(tb1, tbKey)) {
-//		cout << "Error writing file.\n";
-//		return 1;
-//	}
-//	cout << "File save" << endl;
-//	return 1;
-//}
+int save(char** args, int& count) {
+	DataBaseTable tb1;
+	if (currDB == "") {
+		cout << "[STATUS] [SUCCESS] You have to use a database to save" << endl;
+		return 1;
+	}
+	string tbKey = currDB + "_" + args[1];
+	/*tb1.tbKey = tbKey;*/
+	string tbValue = ::hash.SearchKey(tbKey);
+	/*tb1.tbValue = tbValue;*/
+	tb1.add(tbKey, tbValue);
+	if (tbValue == "[empty]") {
+		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
+		return 1;
+	}
+	for (int i = 0; i < ST; i++) {
+		Node* en = ::hash.HT[i];
+		while (en != NULL) {
+			tb1.add(en->key, en->value);
+			en = en->next;
+		}
+	}
+	if (!output(tb1, tbKey)) {
+		cout << "Error writing file.\n";
+		return 1;
+	}
+	cout << "File save" << endl;
+	return 1;
+}
 
 //======show================================
 /*
@@ -497,7 +497,6 @@ int update(char** args, int& count) {
 		cout << "[STATUS] [ERROR] Wrong format . Please try another query." << endl;
 		return 1;
 	}
-
 	string tbKey, tbValue;
 	tbKey = currDB + "_" + args[1];
 	tbValue = ::hash.SearchKey(tbKey);
@@ -526,6 +525,7 @@ int update(char** args, int& count) {
 			::hash.Update(valueKey, updateValue);
 		}
 	}
+
 	return 1;
 }
 
@@ -627,22 +627,27 @@ int read(char** args, int& count) {
 		cout << "Error reading file.\n";
 		return 1;
 	}
-	if (tb.key_tb[0] != tbKeyCheck) {
-		cout << "[STATUS] [ERROR] table \"" << args[1] << "\" doesn't existes yet." << endl << endl;
-		return 1;
-	}
-	//system("cls");
 	for (unsigned i = 0; i < tb.key_tb.size(); ++i) {
 		::hash.Insert(tb.key_tb[i], tb.value_tb[i]);
 	}
-
+	string file_name = args[1];
+	currDB = file_name.substr(0, file_name.find("_"));
+	cout << "[STATUS] using database: " << currDB << endl;
 
 	return 1;
 }
 
 int use(char** args, int& count)
 {
-	if (::hash.SearchKey(args[1]) != "[empty]") {
+	if (readed == true) {
+		string str(args[1]);
+		string delimiter = "_";
+		currDB = str.substr(0, str.find(delimiter));
+		cout << "[STATUS] using database: " << currDB << endl;
+		readed = false;
+		return 1;
+	}
+	if (::hash.SearchKey(args[1]) != "empty") {
 		currDB = args[1];
 		cout << "[STATUS] using database: " << currDB << endl;
 		return 1;
@@ -803,79 +808,6 @@ int select(char** args, int& count)
 	}
 	return 1;
 }
-//	if (strcmp(args[1], "*") == 0) {
-//		if (strcmp(args[2], "from") == 0) {
-//			for (int i = 0; i < database_use.Tables.size(); i++) {
-//				if (args[3] == database_use.Tables[i].Name) {
-//					PrintTable(i);
-//					return 1;
-//				}
-//			}
-//		}
-//	}
-//	else {
-//		for (int i = 1; i < count; i++) {
-//			if (strcmp(args[i], "from") == 0) {
-//				//header
-//				system("cls");
-//				int height = 0;
-//				for (int j = 1; j <= (i - 1) * 20; j++) {
-//					cout << "-";
-//				}
-//				cout << endl;
-//
-//				for (int j = 0; j < i - 1; j++) {
-//					SetCursor(j * 20, 0);
-//					cout << "|" << args[j + 1] << " ";
-//				}
-//				SetCursor((i - 1) * 20, 0);
-//				cout << "|" << endl;
-//				//body
-//				for (int x = 0; x < database_use.Tables.size(); x++) {
-//					if (args[i + 1] == database_use.Tables[x].Name) {
-//						//table x 
-//						for (int z = 1; z < i; z++) {
-//							for (int y = 0; y < database_use.Tables[x].Columns.size(); y++) {
-//								if (args[z] == database_use.Tables[x].Columns[y].Name) {
-//									height = database_use.Tables[x].Columns[y].Items.size();
-//									for (int k = 0; k < database_use.Tables[x].Columns[y].Items.size(); k++) {
-//										SetCursor((z - 1) * 20, k + 1);
-//										cout << "|" << database_use.Tables[x].Columns[y].Items[k];
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//				for (int j = 1; j <= height; j++) {
-//					SetCursor((i - 1) * 20, j);
-//					cout << "|";
-//				}
-//				SetCursor(0, height + 1);
-//				for (int j = 1; j <= (i - 1) * 20; j++) {
-//					cout << "-";
-//				}
-//				cout << endl;
-//				return 1;
-//			}
-//		}
-//		cout << "Wrong format . Please try another query" << endl << "select coloum1 coloum2 from table1 where ..." << endl;
-//		return 1;
-//	}
-//	// select coloum1 coloum2 from table1 where ...
-//	/*
-//	else {
-//		string n = "";
-//		vector<string> field;
-//		for (int i = 1; i < count; i++) {
-//			n = n + " " + args[i];
-//			if (strcmp(args[i], "from") == 0) {
-//				for (int i)
-//			}
-//		}
-//	}*/
-//	return 1;
-//}
 
 
 /*
@@ -888,42 +820,7 @@ void SetCursor(int x, int y) {
 	COORD pos = { x, y };
 	SetConsoleCursorPosition(output, pos);
 };
-//=====control console cursor ===============
 
-//=====Print Table===========================
-//void PrintTable(int i) {
-//	system("cls");
-//	for (int j = 0; j < database_use.Tables[i].Columns.size() * 20; j++) {
-//		cout << "-";
-//	}
-//	cout << endl;
-//
-//	for (int jj = 0; jj < database_use.Tables[i].Columns.size(); jj++) {
-//		SetCursor(jj * 20, 0);
-//		//cout << j << jj;
-//		cout << "|" << database_use.Tables[i].Columns[jj].Name << " ";
-//	}
-//	SetCursor(database_use.Tables[i].Columns.size() * 20, 0);
-//	cout << "|" << endl;
-//
-//	cout << endl;
-//
-//	for (int j = 0; j < database_use.Tables[i].Columns[0].Items.size(); j++) {
-//		for (int jj = 0; jj < database_use.Tables[i].Columns.size(); jj++) {
-//			SetCursor(jj * 20, j + 1);
-//			//cout << j << jj;
-//			cout << "|" << database_use.Tables[i].Columns[jj].Items[j] << " ";
-//		}
-//		SetCursor(database_use.Tables[i].Columns.size() * 20, j + 1);
-//		cout << "|" << endl;
-//	}
-//
-//	for (int j = 0; j < database_use.Tables[i].Columns.size() * 20; j++) {
-//		cout << "-";
-//	}
-//	cout << endl;
-//}
-//=====Print Table===============
 int remove(char** args, int& count) {
 	if (count != 3) {
 		cout << "[ERROR] Wrong format . Please try another query ." << endl;
@@ -949,10 +846,6 @@ int remove(char** args, int& count) {
 		string stra(tbList[i]);
 		string rowKey = stra + "_" + linedelete;
 		::hash.Remove(rowKey);
-		string lenval = ::hash.SearchKey(stra);
-		int len = int(lenval[2]) - 49;
-		string newval = to_string(i) + " " + to_string(len);
-		::hash.Update(stra, newval);
 	}
 	delete[] line;
 	free(tbList);
